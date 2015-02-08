@@ -5,10 +5,11 @@ import (
 )
 
 type drawable interface {
-	InitBuffers()
-	Draw()
 	GetID() string
 	SetID(id string)
+	InitBuffers()
+	BindBuffers()
+	Draw()
 }
 
 type triangle struct {
@@ -19,11 +20,20 @@ type triangle struct {
 	shader      gl.Program
 }
 
+func (t *triangle) GetID() string {
+	return t.id
+}
+
+func (t *triangle) SetID(id string) {
+	t.id = id
+}
+
 func (t *triangle) InitBuffers() {
+	// Initialize to a basic triangle
 	t.bufferData = []float32{
-		-2., -1., 0.,
-		0.5, -1., 0.,
-		0., 1., 0.}
+		-3.0, 0.0, 0.,
+		3.0, 0.0, 0.,
+		0., 5., 0.}
 
 	// Create and Bind Vertex Arrays
 	t.vertexArray = gl.GenVertexArray()
@@ -31,14 +41,18 @@ func (t *triangle) InitBuffers() {
 
 	// Load shaders
 	t.shader = MakeShaderProgram("simpleshade.vs", "simpleshade.fs")
+}
 
-	// Create and bind buffers
+func (t *triangle) BindBuffers() {
+	// Create and bind data buffers
 	t.buffer = gl.GenBuffer()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, len(t.bufferData)*4, &t.bufferData[0], gl.STATIC_DRAW)
 }
 
 func (t *triangle) Draw() {
+	t.BindBuffers()
+
 	// Load Shaders
 	t.shader.Use()
 
@@ -53,12 +67,4 @@ func (t *triangle) Draw() {
 
 	// Clean up
 	attribLoc.DisableArray()
-}
-
-func (t *triangle) GetID() string {
-	return t.id
-}
-
-func (t *triangle) SetID(id string) {
-	t.id = id
 }
