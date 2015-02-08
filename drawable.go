@@ -18,7 +18,7 @@ type triangle struct {
 	buffer      gl.Buffer
 }
 
-func (t triangle) InitBuffers() {
+func (t *triangle) InitBuffers() {
 	t.bufferData = []float32{
 		-2., -1., 0.,
 		0.5, -1., 0.,
@@ -34,7 +34,7 @@ func (t triangle) InitBuffers() {
 	gl.BufferData(gl.ARRAY_BUFFER, len(t.bufferData)*4, &t.bufferData[0], gl.STATIC_DRAW)
 }
 
-func (t triangle) Draw() {
+func (t *triangle) Draw() {
 	attribLoc := gl.AttribLocation(0)
 	attribLoc.EnableArray()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
@@ -45,10 +45,10 @@ func (t triangle) Draw() {
 	attribLoc.DisableArray()
 }
 
-func (t triangle) GetID() string {
+func (t *triangle) GetID() string {
 	return t.id
 }
 
-func (t triangle) SetID(id string) {
+func (t *triangle) SetID(id string) {
 	t.id = id
 }
