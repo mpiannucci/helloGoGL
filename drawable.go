@@ -16,6 +16,7 @@ type triangle struct {
 	bufferData  []float32
 	vertexArray gl.VertexArray
 	buffer      gl.Buffer
+	shader      gl.Program
 }
 
 func (t *triangle) InitBuffers() {
@@ -28,6 +29,9 @@ func (t *triangle) InitBuffers() {
 	t.vertexArray = gl.GenVertexArray()
 	t.vertexArray.Bind()
 
+	// Load shaders
+	t.shader = MakeShaderProgram("simpleshade.vs", "simpleshade.fs")
+
 	// Create and bind buffers
 	t.buffer = gl.GenBuffer()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
@@ -35,13 +39,19 @@ func (t *triangle) InitBuffers() {
 }
 
 func (t *triangle) Draw() {
+	// Load Shaders
+	t.shader.Use()
+
+	// Load Arrays
 	attribLoc := gl.AttribLocation(0)
 	attribLoc.EnableArray()
 	t.buffer.Bind(gl.ARRAY_BUFFER)
 	attribLoc.AttribPointer(3, gl.FLOAT, false, 0, nil)
 
+	// Draw the arrays
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
+	// Clean up
 	attribLoc.DisableArray()
 }
 

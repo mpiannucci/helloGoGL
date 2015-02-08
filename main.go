@@ -20,7 +20,7 @@ var (
 )
 
 // Utility function to grab shaders
-func MakeProgram(vertFname, fragFname string) gl.Program {
+func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 	vertSource, err := ioutil.ReadFile(vertFname)
 	if err != nil {
 		panic(err)
@@ -56,7 +56,7 @@ func main() {
 	glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
 	glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True) // needed for macs
 
-	window, err := glfw.CreateWindow(1024, 768, "Running Waves", nil, nil)
+	window, err := glfw.CreateWindow(600, 400, "Hello Go GL", nil, nil)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		return
@@ -74,13 +74,9 @@ func main() {
 	// Init objects
 	Init()
 
-	// Load shaders
-	prog := MakeProgram("simpleshade.vs", "simpleshade.fs")
-
 	// Equivalent to a do... while
 	for ok := true; ok; ok = (window.GetKey(glfw.KeyEscape) != glfw.Press && !window.ShouldClose()) {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		prog.Use()
 
 		// Draw the drawablesss
 		firstTriangle.Draw()
