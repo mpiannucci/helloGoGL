@@ -6,58 +6,32 @@ package main
 
 import (
 	"fmt"
-	"math"
+	"io/ioutil"
 	"os"
 	"runtime"
 
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
+	"github.com/go-gl/glh"
 )
 
-var (
-	wave    uint
-	trans_x = 0.0
-)
-
-// Draw a 2-D WaveForm
-func Wave(amplitude, duration, resolution float64) {
-	gl.Begin(gl.LINE_STRIP)
-	for i := float64(0.0); i <= duration; i += resolution {
-		gl.Vertex3d(i, amplitude*math.Sin(i), 0.0)
+// Utility function to grab shaders
+func MakeProgram(vertFname, fragFname string) gl.Program {
+	vertSource, err := ioutil.ReadFile(vertFname)
+	if err != nil {
+		panic(err)
 	}
-	gl.End()
-}
 
-// OpenGL drawing and timing
-func Draw() {
-	// Draw the clear color
-	gl.Clear(gl.COLOR_BUFFER_BIT)
-
-	// Draw a waveee
-	gl.PushMatrix()
-	gl.Translated(trans_x, 0.0, 0.0)
-	gl.Rotated(0.0, 0.0, 0.0, 1.0)
-	gl.CallList(wave)
-	gl.PopMatrix()
-}
-
-// Animate!!
-func Animate() {
-	if trans_x < 19.8 {
-		trans_x += 0.1
-	} else {
-		trans_x = 0.0
+	fragSource, err := ioutil.ReadFile(fragFname)
+	if err != nil {
+		panic(err)
 	}
+	return glh.NewProgram(glh.Shader{gl.VERTEX_SHADER, string(vertSource)}, glh.Shader{gl.FRAGMENT_SHADER, string(fragSource)})
 }
 
 // Initialize OpenGL
 func Init() {
 
-	// Make the waves
-	wave = gl.GenLists(1)
-	gl.NewList(wave, gl.COMPILE)
-	Wave(4.0, 20.0, 0.1)
-	gl.EndList()
 }
 
 // Main Entry Point
@@ -92,13 +66,13 @@ func main() {
 	// Window background color
 	gl.ClearColor(1.0, 1.0, 1.0, 0.0)
 
+	// Load shaders
+	prog := MakeProgram("simpleshade.vs", "simpleshade.fs")
+
 	// Equivalent to a do... while
 	for ok := true; ok; ok = (window.GetKey(glfw.KeyEscape) != glfw.Press && !window.ShouldClose()) {
-		// Draw a wave
-		Draw()
-
-		// Animate it
-		Animate()
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+		prog.Use()
 
 		// Swap Buffers
 		window.SwapBuffers()
