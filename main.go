@@ -15,6 +15,10 @@ import (
 	"github.com/go-gl/glh"
 )
 
+var (
+	firstTriangle triangle
+)
+
 // Utility function to grab shaders
 func MakeProgram(vertFname, fragFname string) gl.Program {
 	vertSource, err := ioutil.ReadFile(vertFname)
@@ -31,7 +35,8 @@ func MakeProgram(vertFname, fragFname string) gl.Program {
 
 // Initialize OpenGL
 func Init() {
-
+	firstTriangle.SetID("triangle1")
+	firstTriangle.InitBuffers()
 }
 
 // Main Entry Point
@@ -66,6 +71,9 @@ func main() {
 	// Window background color
 	gl.ClearColor(1.0, 1.0, 1.0, 0.0)
 
+	// Init objects
+	Init()
+
 	// Load shaders
 	prog := MakeProgram("simpleshade.vs", "simpleshade.fs")
 
@@ -73,6 +81,9 @@ func main() {
 	for ok := true; ok; ok = (window.GetKey(glfw.KeyEscape) != glfw.Press && !window.ShouldClose()) {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 		prog.Use()
+
+		// Draw the drawablesss
+		firstTriangle.Draw()
 
 		// Swap Buffers
 		window.SwapBuffers()
