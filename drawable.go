@@ -11,23 +11,27 @@ type drawable interface {
 	SetTranslation(x, y, z float32)
 	SetRotation(angle float32)
 	SetColor(r, g, b float32)
+	UpdateMVPMatrix()
 	InitBuffers()
 	BindBuffers()
 	Draw()
 }
 
 type triangle struct {
-	id              string
-	bufferData      []float32
-	vertexArray     gl.VertexArray
-	buffer          gl.Buffer
-	shader          gl.Program
-	offsetUniform   gl.UniformLocation
-	xyOffset        mgl32.Vec2
-	rotationUniform gl.UniformLocation
-	rotAngle        float32
-	colorUniform    gl.UniformLocation
-	color           mgl32.Vec3
+	id           string
+	bufferData   []float32
+	vertexArray  gl.VertexArray
+	buffer       gl.Buffer
+	shader       gl.Program
+	mvpUniform   gl.UniformLocation
+	xyOffset     mgl32.Vec2
+	rotAngle     float32
+	colorUniform gl.UniformLocation
+	color        mgl32.Vec3
+	projection   mgl32.Mat4
+	view         mgl32.Mat4
+	model        mgl32.Mat4
+	mvp          mgl32.Mat4
 }
 
 func (t *triangle) GetID() string {
@@ -50,6 +54,11 @@ func (t *triangle) SetColor(r, g, b float32) {
 	t.color = mgl32.Vec3{r, g, b}
 }
 
+func (t *triangle) UpdateMVPMatrix() {
+	t.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(t.rotAngle)).Mul4(mgl32.Translate3D(t.xyOffset.X(), t.xyOffset.Y(), 0))
+	t.mvp = t.projection.Mul4(t.model)
+}
+
 func (t *triangle) InitBuffers() {
 	// Initialize to a basic triangle
 	t.bufferData = []float32{
@@ -65,9 +74,12 @@ func (t *triangle) InitBuffers() {
 	t.shader = MakeShaderProgram("shape.vs", "shape.fs")
 
 	// Get the uniform locations
-	t.offsetUniform = t.shader.GetUniformLocation("Offset")
-	t.rotationUniform = t.shader.GetUniformLocation("RotAngle")
+	t.mvpUniform = t.shader.GetUniformLocation("MVP")
 	t.colorUniform = t.shader.GetUniformLocation("ColorVector")
+
+	// Initialize projection matrices
+	t.projection = mgl32.Ortho2D(-10, 10, -10, 10)
+	t.view = mgl32.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
 	// Set Some defaults
 	t.SetTranslation(0.0, 0.0, 0.0)
@@ -83,15 +95,15 @@ func (t *triangle) BindBuffers() {
 }
 
 func (t *triangle) Draw() {
+	t.UpdateMVPMatrix()
 	t.BindBuffers()
 
 	// Load Shaders
 	t.shader.Use()
 
 	// Pass uniforms so the shader
-	t.offsetUniform.Uniform2f(t.xyOffset.X(), t.xyOffset.Y())
+	t.mvpUniform.UniformMatrix4fv(false, t.mvp)
 	t.colorUniform.Uniform3f(t.color.X(), t.color.Y(), t.color.Z())
-	t.rotationUniform.Uniform1f(t.rotAngle)
 
 	// Load Arrays
 	attribLoc := gl.AttribLocation(0)
