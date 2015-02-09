@@ -48,7 +48,7 @@ func (t *triangle) InitBuffers() {
 	t.vertexArray.Bind()
 
 	// Load shaders
-	t.shader = MakeShaderProgram("simpleshade.vs", "simpleshade.fs")
+	t.shader = MakeShaderProgram("shape.vs", "shape.fs")
 
 	t.offsetUniform = t.shader.GetUniformLocation("offset")
 	t.SetTranslation(0, 5, 0)
