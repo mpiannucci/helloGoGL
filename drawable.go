@@ -2,23 +2,26 @@ package main
 
 import (
 	"github.com/go-gl/gl"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 type drawable interface {
 	GetID() string
 	SetID(id string)
+	SetTranslation(x, y, z float32)
 	InitBuffers()
 	BindBuffers()
 	Draw()
 }
 
 type triangle struct {
-	id          string
-	bufferData  []float32
-	vertexArray gl.VertexArray
-	buffer      gl.Buffer
-	shader      gl.Program
-	offset      gl.UniformLocation
+	id            string
+	bufferData    []float32
+	vertexArray   gl.VertexArray
+	buffer        gl.Buffer
+	shader        gl.Program
+	offsetUniform gl.UniformLocation
+	xyOffset      mgl32.Vec2
 }
 
 func (t *triangle) GetID() string {
@@ -27,6 +30,10 @@ func (t *triangle) GetID() string {
 
 func (t *triangle) SetID(id string) {
 	t.id = id
+}
+
+func (t *triangle) SetTranslation(x, y, z float32) {
+	t.xyOffset = mgl32.Vec2{x, y}
 }
 
 func (t *triangle) InitBuffers() {
@@ -43,7 +50,8 @@ func (t *triangle) InitBuffers() {
 	// Load shaders
 	t.shader = MakeShaderProgram("simpleshade.vs", "simpleshade.fs")
 
-	t.offset = t.shader.GetUniformLocation("offset")
+	t.offsetUniform = t.shader.GetUniformLocation("offset")
+	t.SetTranslation(0, 5, 0)
 }
 
 func (t *triangle) BindBuffers() {
@@ -59,7 +67,7 @@ func (t *triangle) Draw() {
 	// Load Shaders
 	t.shader.Use()
 
-	t.offset.Uniform2f(1.0, 5.0)
+	t.offsetUniform.Uniform2f(t.xyOffset.X(), t.xyOffset.Y())
 
 	// Load Arrays
 	attribLoc := gl.AttribLocation(0)
