@@ -33,6 +33,8 @@ func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 func Init() {
 	firstTriangle.SetID("triangle1")
 	firstTriangle.InitBuffers()
+	firstTriangle.SetTranslation(0.0, 0.0, 0.0)
+	firstTriangle.SetColor(0, 0.2, 1.0)
 }
 
 // Main Entry Point

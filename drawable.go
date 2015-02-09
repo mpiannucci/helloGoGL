@@ -62,7 +62,7 @@ func (t *triangle) InitBuffers() {
 
 	// Set Some defaults
 	t.SetTranslation(0, 0, 0)
-	t.SetColor(0, 0.0, 1.0)
+	t.SetColor(0, 0.0, 0.0)
 }
 
 func (t *triangle) BindBuffers() {
