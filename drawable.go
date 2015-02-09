@@ -61,8 +61,8 @@ func (t *triangle) InitBuffers() {
 	t.colorUniform = t.shader.GetUniformLocation("ColorVector")
 
 	// Set Some defaults
-	t.SetTranslation(0, 0, 0)
-	t.SetColor(0, 0.0, 0.0)
+	t.SetTranslation(0.0, 0.0, 0.0)
+	t.SetColor(0.0, 0.0, 0.0)
 }
 
 func (t *triangle) BindBuffers() {

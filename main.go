@@ -12,7 +12,10 @@ import (
 )
 
 var (
-	firstTriangle triangle
+	blueTriangle  triangle
+	redTriangle   triangle
+	animateSwitch float32
+	move          float32
 )
 
 // Utility function to grab shaders
@@ -31,10 +34,36 @@ func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 
 // Initialize OpenGL
 func Init() {
-	firstTriangle.SetID("triangle1")
-	firstTriangle.InitBuffers()
-	firstTriangle.SetTranslation(0.0, 0.0, 0.0)
-	firstTriangle.SetColor(0, 0.2, 1.0)
+	blueTriangle.SetID("blueTriangle")
+	blueTriangle.InitBuffers()
+	blueTriangle.SetTranslation(-5.0, 0.0, 0.0)
+	blueTriangle.SetColor(0, 0.2, 1.0)
+
+	redTriangle.SetID("redTriangle")
+	redTriangle.InitBuffers()
+	redTriangle.SetTranslation(5.0, 0.0, 0.0)
+	redTriangle.SetColor(1.0, 0.2, 0.2)
+
+	animateSwitch = 1.0
+}
+
+// Animate
+func Animate() {
+	// Increment the move counter
+	move += 0.2 * animateSwitch
+
+	// Get the new Y locations
+	blueY := float32(move)
+	redY := float32(-1.0 * move)
+
+	if move > 10 || move < -10.0 {
+		// Make sure nothing leaves the window so switch directions
+		animateSwitch *= -1.0
+	}
+
+	// Set the translation for the shapes
+	blueTriangle.SetTranslation(-5.0, blueY, 0.0)
+	redTriangle.SetTranslation(5.0, redY, 0.0)
 }
 
 // Main Entry Point
@@ -76,8 +105,12 @@ func main() {
 	for ok := true; ok; ok = (window.GetKey(glfw.KeyEscape) != glfw.Press && !window.ShouldClose()) {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
+		// Animate the triangles
+		Animate()
+
 		// Draw the drawablesss
-		firstTriangle.Draw()
+		blueTriangle.Draw()
+		redTriangle.Draw()
 
 		// Swap Buffers
 		window.SwapBuffers()
