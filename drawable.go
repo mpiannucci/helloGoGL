@@ -31,9 +31,9 @@ func (t *triangle) SetID(id string) {
 func (t *triangle) InitBuffers() {
 	// Initialize to a basic triangle
 	t.bufferData = []float32{
-		-3.0, 0.0, 0.,
-		3.0, 0.0, 0.,
-		0., 5., 0.}
+		-3.0, 0.0, 0.0,
+		3.0, 0.0, 0.0,
+		0.0, 5.0, 0.0}
 
 	// Create and Bind Vertex Arrays
 	t.vertexArray = gl.GenVertexArray()
