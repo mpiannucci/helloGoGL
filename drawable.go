@@ -18,6 +18,7 @@ type triangle struct {
 	vertexArray gl.VertexArray
 	buffer      gl.Buffer
 	shader      gl.Program
+	offset      gl.UniformLocation
 }
 
 func (t *triangle) GetID() string {
@@ -41,6 +42,8 @@ func (t *triangle) InitBuffers() {
 
 	// Load shaders
 	t.shader = MakeShaderProgram("simpleshade.vs", "simpleshade.fs")
+
+	t.offset = t.shader.GetUniformLocation("offset")
 }
 
 func (t *triangle) BindBuffers() {
@@ -55,6 +58,8 @@ func (t *triangle) Draw() {
 
 	// Load Shaders
 	t.shader.Use()
+
+	t.offset.Uniform2f(1.0, 5.0)
 
 	// Load Arrays
 	attribLoc := gl.AttribLocation(0)
