@@ -37,11 +37,13 @@ func Init() {
 	blueTriangle.SetID("blueTriangle")
 	blueTriangle.InitBuffers()
 	blueTriangle.SetTranslation(-5.0, 0.0, 0.0)
+	blueTriangle.SetRotation(0.0)
 	blueTriangle.SetColor(0, 0.2, 1.0)
 
 	redTriangle.SetID("redTriangle")
 	redTriangle.InitBuffers()
 	redTriangle.SetTranslation(5.0, 0.0, 0.0)
+	redTriangle.SetRotation(45.0)
 	redTriangle.SetColor(1.0, 0.2, 0.2)
 
 	animateSwitch = 1.0

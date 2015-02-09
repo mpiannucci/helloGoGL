@@ -9,6 +9,7 @@ type drawable interface {
 	GetID() string
 	SetID(id string)
 	SetTranslation(x, y, z float32)
+	SetRotation(angle float32)
 	SetColor(r, g, b float32)
 	InitBuffers()
 	BindBuffers()
@@ -16,15 +17,17 @@ type drawable interface {
 }
 
 type triangle struct {
-	id            string
-	bufferData    []float32
-	vertexArray   gl.VertexArray
-	buffer        gl.Buffer
-	shader        gl.Program
-	offsetUniform gl.UniformLocation
-	xyOffset      mgl32.Vec2
-	colorUniform  gl.UniformLocation
-	color         mgl32.Vec3
+	id              string
+	bufferData      []float32
+	vertexArray     gl.VertexArray
+	buffer          gl.Buffer
+	shader          gl.Program
+	offsetUniform   gl.UniformLocation
+	xyOffset        mgl32.Vec2
+	rotationUniform gl.UniformLocation
+	rotAngle        float32
+	colorUniform    gl.UniformLocation
+	color           mgl32.Vec3
 }
 
 func (t *triangle) GetID() string {
@@ -37,6 +40,10 @@ func (t *triangle) SetID(id string) {
 
 func (t *triangle) SetTranslation(x, y, z float32) {
 	t.xyOffset = mgl32.Vec2{x, y}
+}
+
+func (t *triangle) SetRotation(angle float32) {
+	t.rotAngle = angle
 }
 
 func (t *triangle) SetColor(r, g, b float32) {
@@ -57,11 +64,14 @@ func (t *triangle) InitBuffers() {
 	// Load shaders
 	t.shader = MakeShaderProgram("shape.vs", "shape.fs")
 
+	// Get the uniform locations
 	t.offsetUniform = t.shader.GetUniformLocation("Offset")
+	t.rotationUniform = t.shader.GetUniformLocation("RotAngle")
 	t.colorUniform = t.shader.GetUniformLocation("ColorVector")
 
 	// Set Some defaults
 	t.SetTranslation(0.0, 0.0, 0.0)
+	t.SetRotation(0.0)
 	t.SetColor(0.0, 0.0, 0.0)
 }
 
@@ -78,8 +88,10 @@ func (t *triangle) Draw() {
 	// Load Shaders
 	t.shader.Use()
 
+	// Pass uniforms so the shader
 	t.offsetUniform.Uniform2f(t.xyOffset.X(), t.xyOffset.Y())
 	t.colorUniform.Uniform3f(t.color.X(), t.color.Y(), t.color.Z())
+	t.rotationUniform.Uniform1f(t.rotAngle)
 
 	// Load Arrays
 	attribLoc := gl.AttribLocation(0)
