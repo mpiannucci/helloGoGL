@@ -3,7 +3,10 @@
 // Ouput color
 out vec3 color;
 
+// Color uniform
+uniform vec3 ColorVector;
+
 void main() {
     // Output color
-    color = vec3(0.0, 0.2, 1.0);
+    color = ColorVector;
 }

@@ -9,6 +9,7 @@ type drawable interface {
 	GetID() string
 	SetID(id string)
 	SetTranslation(x, y, z float32)
+	SetColor(r, g, b float32)
 	InitBuffers()
 	BindBuffers()
 	Draw()
@@ -22,6 +23,8 @@ type triangle struct {
 	shader        gl.Program
 	offsetUniform gl.UniformLocation
 	xyOffset      mgl32.Vec2
+	colorUniform  gl.UniformLocation
+	color         mgl32.Vec3
 }
 
 func (t *triangle) GetID() string {
@@ -34,6 +37,10 @@ func (t *triangle) SetID(id string) {
 
 func (t *triangle) SetTranslation(x, y, z float32) {
 	t.xyOffset = mgl32.Vec2{x, y}
+}
+
+func (t *triangle) SetColor(r, g, b float32) {
+	t.color = mgl32.Vec3{r, g, b}
 }
 
 func (t *triangle) InitBuffers() {
@@ -50,8 +57,12 @@ func (t *triangle) InitBuffers() {
 	// Load shaders
 	t.shader = MakeShaderProgram("shape.vs", "shape.fs")
 
-	t.offsetUniform = t.shader.GetUniformLocation("offset")
-	t.SetTranslation(0, 5, 0)
+	t.offsetUniform = t.shader.GetUniformLocation("Offset")
+	t.colorUniform = t.shader.GetUniformLocation("ColorVector")
+
+	// Set Some defaults
+	t.SetTranslation(0, 0, 0)
+	t.SetColor(0, 0.0, 1.0)
 }
 
 func (t *triangle) BindBuffers() {
@@ -68,6 +79,7 @@ func (t *triangle) Draw() {
 	t.shader.Use()
 
 	t.offsetUniform.Uniform2f(t.xyOffset.X(), t.xyOffset.Y())
+	t.colorUniform.Uniform3f(t.color.X(), t.color.Y(), t.color.Z())
 
 	// Load Arrays
 	attribLoc := gl.AttribLocation(0)
