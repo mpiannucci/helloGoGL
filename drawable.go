@@ -6,7 +6,7 @@ import (
 )
 
 type drawable interface {
-	GetID() string
+	ID() string
 	SetID(id string)
 	SetTranslation(x, y, z float32)
 	SetRotation(angle float32)
@@ -17,204 +17,119 @@ type drawable interface {
 	Draw()
 }
 
-type triangle struct {
-	id           string
-	bufferData   []float32
-	vertexArray  gl.VertexArray
-	buffer       gl.Buffer
-	shader       gl.Program
-	mvpUniform   gl.UniformLocation
-	xyOffset     mgl32.Vec2
-	rotAngle     float32
-	colorUniform gl.UniformLocation
-	color        mgl32.Vec3
-	projection   mgl32.Mat4
-	view         mgl32.Mat4
-	model        mgl32.Mat4
-	mvp          mgl32.Mat4
+type polygon2d struct {
+	id            string
+	vertices      []float32
+	indices       []gl.GLuint
+	vertexArray   gl.VertexArray
+	vertexBuffer  gl.Buffer
+	elementBuffer gl.Buffer
+	shader        gl.Program
+	mvpUniform    gl.UniformLocation
+	xyOffset      mgl32.Vec2
+	rotAngle      float32
+	colorUniform  gl.UniformLocation
+	color         mgl32.Vec3
+	projection    mgl32.Mat4
+	view          mgl32.Mat4
+	model         mgl32.Mat4
+	mvp           mgl32.Mat4
 }
 
-func (t *triangle) GetID() string {
-	return t.id
+func (p *polygon2d) GetID() string {
+	return p.id
 }
 
-func (t *triangle) SetID(id string) {
-	t.id = id
+func (p *polygon2d) SetID(id string) {
+	p.id = id
 }
 
-func (t *triangle) SetTranslation(x, y, z float32) {
-	t.xyOffset = mgl32.Vec2{x, y}
+func (p *polygon2d) SetTranslation(x, y, z float32) {
+	p.xyOffset = mgl32.Vec2{x, y}
 }
 
-func (t *triangle) SetRotation(angle float32) {
-	t.rotAngle = angle
+func (p *polygon2d) SetRotation(angle float32) {
+	p.rotAngle = angle
 }
 
-func (t *triangle) SetColor(r, g, b float32) {
-	t.color = mgl32.Vec3{r, g, b}
+func (p *polygon2d) SetColor(r, g, b float32) {
+	p.color = mgl32.Vec3{r, g, b}
 }
 
-func (t *triangle) UpdateMVPMatrix() {
-	t.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(t.rotAngle)).Mul4(mgl32.Translate3D(t.xyOffset.X(), t.xyOffset.Y(), 0))
-	t.mvp = t.projection.Mul4(t.model)
+func (p *polygon2d) UpdateMVPMatrix() {
+	p.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(p.rotAngle)).Mul4(mgl32.Translate3D(p.xyOffset.X(), p.xyOffset.Y(), 0))
+	p.mvp = p.projection.Mul4(p.model)
 }
 
-func (t *triangle) InitBuffers() {
+func (p *polygon2d) InitBuffers() {
 	// Initialize to a basic triangle
-	t.bufferData = []float32{
+	p.vertices = []float32{
 		-1.0, 0.0, 0.0,
 		1.0, 0.0, 0.0,
 		0.0, 2.0, 0.0}
 
+	p.indices = []gl.GLuint{0, 1, 2}
+
 	// Create and Bind Vertex Arrays
-	t.vertexArray = gl.GenVertexArray()
-	t.vertexArray.Bind()
+	p.vertexArray = gl.GenVertexArray()
+	p.vertexArray.Bind()
 
 	// Load shaders
-	t.shader = MakeShaderProgram("shape.vs", "shape.fs")
+	p.shader = MakeShaderProgram("shape.vs", "shape.fs")
 
 	// Get the uniform locations
-	t.mvpUniform = t.shader.GetUniformLocation("MVP")
-	t.colorUniform = t.shader.GetUniformLocation("ColorVector")
+	p.mvpUniform = p.shader.GetUniformLocation("MVP")
+	p.colorUniform = p.shader.GetUniformLocation("ColorVector")
 
 	// Initialize projection matrices
-	t.projection = mgl32.Ortho2D(-10, 10, -10, 10)
-	t.view = mgl32.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+	p.projection = mgl32.Ortho2D(-10, 10, -10, 10)
+	p.view = mgl32.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
 	// Set Some defaults
-	t.SetTranslation(0.0, 0.0, 0.0)
-	t.SetRotation(0.0)
-	t.SetColor(0.0, 0.0, 0.0)
+	p.SetTranslation(0.0, 0.0, 0.0)
+	p.SetRotation(0.0)
+	p.SetColor(0.0, 0.0, 0.0)
 }
 
-func (t *triangle) BindBuffers() {
-	// Create and bind data buffers
-	t.buffer = gl.GenBuffer()
-	t.buffer.Bind(gl.ARRAY_BUFFER)
-	gl.BufferData(gl.ARRAY_BUFFER, len(t.bufferData)*4, &t.bufferData[0], gl.STATIC_DRAW)
+func (p *polygon2d) BindBuffers() {
+	// Create and bind vertex buffers
+	p.vertexBuffer = gl.GenBuffer()
+	p.vertexBuffer.Bind(gl.ARRAY_BUFFER)
+	gl.BufferData(gl.ARRAY_BUFFER, len(p.vertices)*4, p.vertices, gl.STATIC_DRAW)
+
+	// Create and bind the element buffers
+	p.elementBuffer = gl.GenBuffer()
+	p.elementBuffer.Bind(gl.ELEMENT_ARRAY_BUFFER)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(p.indices)*4, p.indices, gl.STATIC_DRAW)
 }
 
-func (t *triangle) Draw() {
-	t.UpdateMVPMatrix()
-	t.BindBuffers()
+func (p *polygon2d) Draw() {
+	p.UpdateMVPMatrix()
+	p.BindBuffers()
 
 	// Load Shaders
-	t.shader.Use()
+	p.shader.Use()
 
 	// Pass uniforms so the shader
-	t.mvpUniform.UniformMatrix4fv(false, t.mvp)
-	t.colorUniform.Uniform3f(t.color.X(), t.color.Y(), t.color.Z())
+	p.mvpUniform.UniformMatrix4fv(false, p.mvp)
+	p.colorUniform.Uniform3f(p.color.X(), p.color.Y(), p.color.Z())
 
 	// Load Arrays
 	attribLoc := gl.AttribLocation(0)
 	attribLoc.EnableArray()
-	t.buffer.Bind(gl.ARRAY_BUFFER)
+	defer attribLoc.DisableArray()
+
+	// Bind the buffer again
+	p.vertexBuffer.Bind(gl.ARRAY_BUFFER)
+	defer p.vertexBuffer.Unbind(gl.ARRAY_BUFFER)
 	attribLoc.AttribPointer(3, gl.FLOAT, false, 0, nil)
 
-	// Draw the arrays
-	gl.DrawArrays(gl.TRIANGLES, 0, 3)
-
-	// Clean up
-	attribLoc.DisableArray()
-}
-
-type rectangle struct {
-	id           string
-	bufferData   []float32
-	vertexArray  gl.VertexArray
-	buffer       gl.Buffer
-	shader       gl.Program
-	mvpUniform   gl.UniformLocation
-	xyOffset     mgl32.Vec2
-	rotAngle     float32
-	colorUniform gl.UniformLocation
-	color        mgl32.Vec3
-	projection   mgl32.Mat4
-	view         mgl32.Mat4
-	model        mgl32.Mat4
-	mvp          mgl32.Mat4
-}
-
-func (r *rectangle) GetID() string {
-	return r.id
-}
-
-func (r *rectangle) SetID(id string) {
-	r.id = id
-}
-
-func (r *rectangle) SetTranslation(x, y, z float32) {
-	r.xyOffset = mgl32.Vec2{x, y}
-}
-
-func (r *rectangle) SetRotation(angle float32) {
-	r.rotAngle = angle
-}
-
-func (R *rectangle) SetColor(r, g, b float32) {
-	R.color = mgl32.Vec3{r, g, b}
-}
-
-func (r *rectangle) UpdateMVPMatrix() {
-	r.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(r.rotAngle)).Mul4(mgl32.Translate3D(r.xyOffset.X(), r.xyOffset.Y(), 0))
-	r.mvp = r.projection.Mul4(r.model)
-}
-
-func (r *rectangle) InitBuffers() {
-	// Initialize to a basic triangle
-	r.bufferData = []float32{
-		0.0, 0.0, 0.0,
-		0.0, 2.0, 0.0,
-		2.0, 0.0, 0.0,
-		2.0, 2.0, 0.0}
-
-	// Create and Bind Vertex Arrays
-	r.vertexArray = gl.GenVertexArray()
-	r.vertexArray.Bind()
-
-	// Load shaders
-	r.shader = MakeShaderProgram("shape.vs", "shape.fs")
-
-	// Get the uniform locations
-	r.mvpUniform = r.shader.GetUniformLocation("MVP")
-	r.colorUniform = r.shader.GetUniformLocation("ColorVector")
-
-	// Initialize projection matrices
-	r.projection = mgl32.Ortho2D(-10, 10, -10, 10)
-	r.view = mgl32.LookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
-
-	// Set Some defaults
-	r.SetTranslation(0.0, 0.0, 0.0)
-	r.SetRotation(0.0)
-	r.SetColor(0.0, 0.0, 0.0)
-}
-
-func (r *rectangle) BindBuffers() {
-	// Create and bind data buffers
-	r.buffer = gl.GenBuffer()
-	r.buffer.Bind(gl.ARRAY_BUFFER)
-	gl.BufferData(gl.ARRAY_BUFFER, len(r.bufferData)*4, &r.bufferData[0], gl.STATIC_DRAW)
-}
-
-func (r *rectangle) Draw() {
-	r.UpdateMVPMatrix()
-	r.BindBuffers()
-
-	// Load Shaders
-	r.shader.Use()
-
-	// Pass uniforms so the shader
-	r.mvpUniform.UniformMatrix4fv(false, r.mvp)
-	r.colorUniform.Uniform3f(r.color.X(), r.color.Y(), r.color.Z())
-
-	// Load Arrays
-	attribLoc := gl.AttribLocation(0)
-	attribLoc.EnableArray()
-	r.buffer.Bind(gl.ARRAY_BUFFER)
-	attribLoc.AttribPointer(3, gl.FLOAT, false, 0, nil)
+	// Bind the element buffer
+	p.elementBuffer.Bind(gl.ELEMENT_ARRAY_BUFFER)
+	defer p.elementBuffer.Unbind(gl.ELEMENT_ARRAY_BUFFER)
 
 	// Draw the arrays
-	gl.DrawArrays(gl.TRIANGLE_STRIP, 0, 6)
+	gl.DrawElements(gl.TRIANGLES, len(p.indices), gl.UNSIGNED_INT, nil)
 
 	// Clean up
 	attribLoc.DisableArray()

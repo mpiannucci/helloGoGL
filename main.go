@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	blueTriangle  triangle
-	redRect       rectangle
+	blueTriangle  polygon2d
+	redRect       polygon2d
 	animateSwitch float32
 	move          float32
 )
