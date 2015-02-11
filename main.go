@@ -35,15 +35,17 @@ func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 // Initialize OpenGL
 func Init() {
 	blueTriangle.SetID("blueTriangle")
+	blueTriangle.SetShape(triangle)
 	blueTriangle.InitBuffers()
 	blueTriangle.SetTranslation(-5.0, 0.0, 0.0)
 	blueTriangle.SetRotation(0.0)
 	blueTriangle.SetColor(0, 0.2, 1.0)
 
 	redRect.SetID("redRect")
+	redRect.SetShape(square)
 	redRect.InitBuffers()
 	redRect.SetTranslation(5.0, 0.0, 0.0)
-	redRect.SetRotation(30.0)
+	redRect.SetRotation(0.0)
 	redRect.SetColor(1.0, 0.2, 0.2)
 
 	animateSwitch = 1.0
@@ -85,7 +87,7 @@ func main() {
 	glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
 	glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True) // needed for macs
 
-	window, err := glfw.CreateWindow(600, 400, "Hello Go GL", nil, nil)
+	window, err := glfw.CreateWindow(500, 500, "Hello Go GL", nil, nil)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		return

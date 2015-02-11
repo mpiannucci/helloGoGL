@@ -17,23 +17,36 @@ type drawable interface {
 	Draw()
 }
 
+type PolygonShape int
+
+const (
+	triangle  PolygonShape = iota
+	square    PolygonShape = iota
+	rectangle PolygonShape = iota
+)
+
 type polygon2d struct {
-	id            string
-	vertices      []float32
-	indices       []gl.GLuint
+	id       string
+	vertices []float32
+	indices  []gl.GLuint
+	shape    PolygonShape
+
+	// Buffers
 	vertexArray   gl.VertexArray
 	vertexBuffer  gl.Buffer
 	elementBuffer gl.Buffer
-	shader        gl.Program
-	mvpUniform    gl.UniformLocation
-	xyOffset      mgl32.Vec2
-	rotAngle      float32
-	colorUniform  gl.UniformLocation
-	color         mgl32.Vec3
-	projection    mgl32.Mat4
-	view          mgl32.Mat4
-	model         mgl32.Mat4
-	mvp           mgl32.Mat4
+
+	// Shaders
+	shader       gl.Program
+	mvpUniform   gl.UniformLocation
+	xyOffset     mgl32.Vec2
+	rotAngle     float32
+	colorUniform gl.UniformLocation
+	color        mgl32.Vec3
+	projection   mgl32.Mat4
+	view         mgl32.Mat4
+	model        mgl32.Mat4
+	mvp          mgl32.Mat4
 }
 
 func (p *polygon2d) GetID() string {
@@ -56,20 +69,42 @@ func (p *polygon2d) SetColor(r, g, b float32) {
 	p.color = mgl32.Vec3{r, g, b}
 }
 
+func (p *polygon2d) SetShape(shape PolygonShape) {
+	p.shape = shape
+	switch p.shape {
+	case triangle:
+		p.vertices = []float32{
+			0.0, 0.0, 0.0,
+			1.0, 0.0, 0.0,
+			1.0, 1.0, 0.0}
+		p.indices = []gl.GLuint{0, 1, 2}
+	case square:
+		p.vertices = []float32{
+			0.0, 0.0, 0.0,
+			1.0, 0.0, 0.0,
+			1.0, 1.0, 0.0,
+			0.0, 1.0, 0.0}
+		p.indices = []gl.GLuint{
+			0, 1, 2,
+			0, 2, 3}
+	case rectangle:
+		p.vertices = []float32{
+			0.0, 0.0, 0.0,
+			2.0, 0.0, 0.0,
+			2.0, 1.0, 0.0,
+			0.0, 1.0, 0.0}
+		p.indices = []gl.GLuint{
+			0, 1, 2,
+			0, 2, 3}
+	}
+}
+
 func (p *polygon2d) UpdateMVPMatrix() {
 	p.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(p.rotAngle)).Mul4(mgl32.Translate3D(p.xyOffset.X(), p.xyOffset.Y(), 0))
 	p.mvp = p.projection.Mul4(p.model)
 }
 
 func (p *polygon2d) InitBuffers() {
-	// Initialize to a basic triangle
-	p.vertices = []float32{
-		-1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		0.0, 2.0, 0.0}
-
-	p.indices = []gl.GLuint{0, 1, 2}
-
 	// Create and Bind Vertex Arrays
 	p.vertexArray = gl.GenVertexArray()
 	p.vertexArray.Bind()
