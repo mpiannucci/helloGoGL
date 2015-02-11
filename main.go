@@ -13,7 +13,7 @@ import (
 
 var (
 	blueTriangle  triangle
-	redTriangle   triangle
+	redRect       rectangle
 	animateSwitch float32
 	move          float32
 )
@@ -40,11 +40,11 @@ func Init() {
 	blueTriangle.SetRotation(0.0)
 	blueTriangle.SetColor(0, 0.2, 1.0)
 
-	redTriangle.SetID("redTriangle")
-	redTriangle.InitBuffers()
-	redTriangle.SetTranslation(5.0, 0.0, 0.0)
-	redTriangle.SetRotation(45.0)
-	redTriangle.SetColor(1.0, 0.2, 0.2)
+	redRect.SetID("redRect")
+	redRect.InitBuffers()
+	redRect.SetTranslation(5.0, 0.0, 0.0)
+	redRect.SetRotation(30.0)
+	redRect.SetColor(1.0, 0.2, 0.2)
 
 	animateSwitch = 1.0
 }
@@ -65,7 +65,7 @@ func Animate() {
 
 	// Set the translation for the shapes
 	blueTriangle.SetTranslation(-5.0, blueY, 0.0)
-	redTriangle.SetTranslation(5.0, redY, 0.0)
+	redRect.SetTranslation(5.0, redY, 0.0)
 }
 
 // Main Entry Point
@@ -112,7 +112,7 @@ func main() {
 
 		// Draw the drawablesss
 		blueTriangle.Draw()
-		redTriangle.Draw()
+		redRect.Draw()
 
 		// Swap Buffers
 		window.SwapBuffers()
