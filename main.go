@@ -14,6 +14,7 @@ import (
 var (
 	blueTriangle  *polygon2d
 	redRect       *polygon2d
+	greenCircle   *circle
 	animateSwitch float32
 	move          float32
 )
@@ -35,14 +36,22 @@ func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 // Initialize OpenGL
 func Init() {
 	blueTriangle = CreateTriangle()
-	blueTriangle.SetTranslation(-5.0, 0.0, 0.0)
+	blueTriangle.SetTranslation(-7.0, 0.0, 0.0)
 	blueTriangle.SetRotation(0.0)
+	blueTriangle.SetScale(3.0)
 	blueTriangle.SetColor(0, 0.2, 1.0)
 
 	redRect = CreateSquare()
 	redRect.SetTranslation(5.0, 0.0, 0.0)
 	redRect.SetRotation(0.0)
+	redRect.SetScale(3.0)
 	redRect.SetColor(1.0, 0.2, 0.2)
+
+	greenCircle = CreateCircle(0.5)
+	greenCircle.SetTranslation(0.0, 0.0, 0.0)
+	greenCircle.SetRotation(0.0)
+	greenCircle.SetScale(3.0)
+	greenCircle.SetColor(0.2, 1.0, 0.2)
 
 	animateSwitch = 1.0
 }
@@ -83,7 +92,7 @@ func main() {
 	glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
 	glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True) // needed for macs
 
-	window, err := glfw.CreateWindow(500, 500, "Hello Go GL", nil, nil)
+	window, err := glfw.CreateWindow(400, 400, "Hello Go GL", nil, nil)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		return
@@ -106,11 +115,12 @@ func main() {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		// Animate the triangles
-		Animate()
+		//Animate()
 
 		// Draw the drawablesss
 		blueTriangle.Draw()
 		redRect.Draw()
+		greenCircle.Draw()
 
 		// Swap Buffers
 		window.SwapBuffers()

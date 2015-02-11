@@ -5,14 +5,6 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 )
 
-// Get a new shape object of your choice
-func CreatePolygon(shape PolygonShape) *polygon2d {
-	p := new(polygon2d)
-	p.SetShape(shape)
-	p.InitBuffers()
-	return p
-}
-
 // PloygonShape type to create polygon instances with
 type PolygonShape int
 
@@ -40,6 +32,7 @@ type polygon2d struct {
 	mvpUniform   gl.UniformLocation
 	xyOffset     mgl32.Vec2
 	rotAngle     float32
+	scaleMag     float32
 	colorUniform gl.UniformLocation
 	color        mgl32.Vec3
 	projection   mgl32.Mat4
@@ -49,7 +42,7 @@ type polygon2d struct {
 }
 
 // Get the id of the polygon
-func (p *polygon2d) GetID() string {
+func (p *polygon2d) ID() string {
 	return p.id
 }
 
@@ -66,6 +59,11 @@ func (p *polygon2d) SetTranslation(x, y, z float32) {
 // Set the rotation of the polygon
 func (p *polygon2d) SetRotation(angle float32) {
 	p.rotAngle = angle
+}
+
+// Set the scale of the polygon
+func (p *polygon2d) SetScale(mag float32) {
+	p.scaleMag = mag
 }
 
 // Set the color to draw the polygon
@@ -106,7 +104,7 @@ func (p *polygon2d) SetShape(shape PolygonShape) {
 
 // Update the Model View Projection matrix for rendering in the shader
 func (p *polygon2d) UpdateMVPMatrix() {
-	p.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(p.rotAngle)).Mul4(mgl32.Translate3D(p.xyOffset.X(), p.xyOffset.Y(), 0))
+	p.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(p.rotAngle)).Mul4(mgl32.Translate3D(p.xyOffset.X(), p.xyOffset.Y(), 0)).Mul4(mgl32.Scale3D(p.scaleMag, p.scaleMag, 0))
 	p.mvp = p.projection.Mul4(p.model)
 }
 
@@ -153,6 +151,7 @@ func (p *polygon2d) Draw() {
 
 	// Load Shaders
 	p.shader.Use()
+	defer p.shader.Unuse()
 
 	// Pass uniforms so the shader
 	p.mvpUniform.UniformMatrix4fv(false, p.mvp)
