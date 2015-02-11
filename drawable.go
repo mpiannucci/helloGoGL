@@ -5,6 +5,30 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 )
 
+// Get a new triangle object
+func CreateTriangle() *polygon2d {
+	return CreatePolygon(triangle)
+}
+
+// Get a new Square object
+func CreateSquare() *polygon2d {
+	return CreatePolygon(square)
+}
+
+// Get a new rectangle object
+func CreateRectangle() *polygon2d {
+	return CreatePolygon(rectangle)
+}
+
+// Get a new shape object of your choice
+func CreatePolygon(shape PolygonShape) *polygon2d {
+	p := new(polygon2d)
+	p.SetShape(shape)
+	p.InitBuffers()
+	return p
+}
+
+// Abstract interface for OpenGL compatible drawable objects
 type drawable interface {
 	ID() string
 	SetID(id string)
@@ -17,14 +41,17 @@ type drawable interface {
 	Draw()
 }
 
+// PloygonShape type to create polygon instances with
 type PolygonShape int
 
+// Types of polygons
 const (
 	triangle  PolygonShape = iota
 	square    PolygonShape = iota
 	rectangle PolygonShape = iota
 )
 
+// Two Dimensional Polygon Drawable
 type polygon2d struct {
 	id       string
 	vertices []float32
@@ -49,26 +76,32 @@ type polygon2d struct {
 	mvp          mgl32.Mat4
 }
 
+// Get the id of the polygon
 func (p *polygon2d) GetID() string {
 	return p.id
 }
 
+// Set the id of the polygon
 func (p *polygon2d) SetID(id string) {
 	p.id = id
 }
 
+// Set the translation of the polygon
 func (p *polygon2d) SetTranslation(x, y, z float32) {
 	p.xyOffset = mgl32.Vec2{x, y}
 }
 
+// Set the rotation of the polygon
 func (p *polygon2d) SetRotation(angle float32) {
 	p.rotAngle = angle
 }
 
+// Set the color to draw the polygon
 func (p *polygon2d) SetColor(r, g, b float32) {
 	p.color = mgl32.Vec3{r, g, b}
 }
 
+// Set the shape of the polygon
 func (p *polygon2d) SetShape(shape PolygonShape) {
 	p.shape = shape
 	switch p.shape {
@@ -76,7 +109,7 @@ func (p *polygon2d) SetShape(shape PolygonShape) {
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
-			1.0, 1.0, 0.0}
+			0.5, 1.0, 0.0}
 		p.indices = []gl.GLuint{0, 1, 2}
 	case square:
 		p.vertices = []float32{
@@ -99,11 +132,13 @@ func (p *polygon2d) SetShape(shape PolygonShape) {
 	}
 }
 
+// Update the Model View Projection matrix for rendering in the shader
 func (p *polygon2d) UpdateMVPMatrix() {
 	p.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(p.rotAngle)).Mul4(mgl32.Translate3D(p.xyOffset.X(), p.xyOffset.Y(), 0))
 	p.mvp = p.projection.Mul4(p.model)
 }
 
+// Initialize the buffers
 func (p *polygon2d) InitBuffers() {
 	// Create and Bind Vertex Arrays
 	p.vertexArray = gl.GenVertexArray()
@@ -126,6 +161,7 @@ func (p *polygon2d) InitBuffers() {
 	p.SetColor(0.0, 0.0, 0.0)
 }
 
+// Bind the Buffers
 func (p *polygon2d) BindBuffers() {
 	// Create and bind vertex buffers
 	p.vertexBuffer = gl.GenBuffer()
@@ -138,6 +174,7 @@ func (p *polygon2d) BindBuffers() {
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(p.indices)*4, p.indices, gl.STATIC_DRAW)
 }
 
+// Render the polygon
 func (p *polygon2d) Draw() {
 	p.UpdateMVPMatrix()
 	p.BindBuffers()

@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	blueTriangle  polygon2d
-	redRect       polygon2d
+	blueTriangle  *polygon2d
+	redRect       *polygon2d
 	animateSwitch float32
 	move          float32
 )
@@ -34,16 +34,12 @@ func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 
 // Initialize OpenGL
 func Init() {
-	blueTriangle.SetID("blueTriangle")
-	blueTriangle.SetShape(triangle)
-	blueTriangle.InitBuffers()
+	blueTriangle = CreateTriangle()
 	blueTriangle.SetTranslation(-5.0, 0.0, 0.0)
 	blueTriangle.SetRotation(0.0)
 	blueTriangle.SetColor(0, 0.2, 1.0)
 
-	redRect.SetID("redRect")
-	redRect.SetShape(square)
-	redRect.InitBuffers()
+	redRect = CreateSquare()
 	redRect.SetTranslation(5.0, 0.0, 0.0)
 	redRect.SetRotation(0.0)
 	redRect.SetColor(1.0, 0.2, 0.2)
@@ -60,7 +56,7 @@ func Animate() {
 	blueY := float32(move)
 	redY := float32(-1.0 * move)
 
-	if move > 10 || move < -10.0 {
+	if move > 9.5 || move < -9.5 {
 		// Make sure nothing leaves the window so switch directions
 		animateSwitch *= -1.0
 	}
