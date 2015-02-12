@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"runtime"
 
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
-	"github.com/go-gl/glh"
 )
 
 var (
@@ -16,20 +14,6 @@ var (
 	animateSwitch float32
 	move          float32
 )
-
-// Utility function to grab shaders
-func MakeShaderProgram(vertFname, fragFname string) gl.Program {
-	vertSource, err := ioutil.ReadFile(vertFname)
-	if err != nil {
-		panic(err)
-	}
-
-	fragSource, err := ioutil.ReadFile(fragFname)
-	if err != nil {
-		panic(err)
-	}
-	return glh.NewProgram(glh.Shader{gl.VERTEX_SHADER, string(vertSource)}, glh.Shader{gl.FRAGMENT_SHADER, string(fragSource)})
-}
 
 // Initialize OpenGL
 func Init() {

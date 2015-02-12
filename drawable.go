@@ -1,5 +1,11 @@
 package main
 
+import (
+	"github.com/go-gl/gl"
+	"github.com/go-gl/glh"
+	"io/ioutil"
+)
+
 // Abstract interface for OpenGL compatible drawable objects
 type drawable interface {
 	ID() string
@@ -43,4 +49,18 @@ func CreatePolygon(shape PolygonShape) *polygon2d {
 	p.SetShape(shape)
 	p.InitBuffers()
 	return p
+}
+
+// Utility function to grab shaders
+func MakeShaderProgram(vertFname, fragFname string) gl.Program {
+	vertSource, err := ioutil.ReadFile(vertFname)
+	if err != nil {
+		panic(err)
+	}
+
+	fragSource, err := ioutil.ReadFile(fragFname)
+	if err != nil {
+		panic(err)
+	}
+	return glh.NewProgram(glh.Shader{gl.VERTEX_SHADER, string(vertSource)}, glh.Shader{gl.FRAGMENT_SHADER, string(fragSource)})
 }
