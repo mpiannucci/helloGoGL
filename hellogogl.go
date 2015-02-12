@@ -12,9 +12,7 @@ import (
 )
 
 var (
-	blueTriangle  *polygon2d
-	redRect       *polygon2d
-	greenCircle   *circle
+	shapes        []drawable
 	animateSwitch float32
 	move          float32
 )
@@ -35,23 +33,28 @@ func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 
 // Initialize OpenGL
 func Init() {
-	blueTriangle = CreateTriangle()
+	blueTriangle := CreateTriangle()
 	blueTriangle.SetTranslation(-7.0, 0.0, 0.0)
 	blueTriangle.SetRotation(0.0)
 	blueTriangle.SetScale(3.0)
 	blueTriangle.SetColor(0, 0.2, 1.0)
 
-	redRect = CreateSquare()
+	redRect := CreateSquare()
 	redRect.SetTranslation(5.0, 0.0, 0.0)
 	redRect.SetRotation(0.0)
 	redRect.SetScale(3.0)
 	redRect.SetColor(1.0, 0.2, 0.2)
 
-	greenCircle = CreateCircle(0.5)
+	greenCircle := CreateCircle(0.5)
 	greenCircle.SetTranslation(0.0, 0.0, 0.0)
 	greenCircle.SetRotation(0.0)
 	greenCircle.SetScale(3.0)
 	greenCircle.SetColor(0.2, 1.0, 0.2)
+
+	shapes = []drawable{
+		blueTriangle,
+		redRect,
+		greenCircle}
 
 	animateSwitch = 1.0
 }
@@ -71,8 +74,8 @@ func Animate() {
 	}
 
 	// Set the translation for the shapes
-	blueTriangle.SetTranslation(-5.0, blueY, 0.0)
-	redRect.SetTranslation(5.0, redY, 0.0)
+	shapes[0].SetTranslation(-5.0, blueY, 0.0)
+	shapes[1].SetTranslation(5.0, redY, 0.0)
 }
 
 // Main Entry Point
@@ -118,9 +121,9 @@ func main() {
 		//Animate()
 
 		// Draw the drawablesss
-		blueTriangle.Draw()
-		redRect.Draw()
-		greenCircle.Draw()
+		for _, shape := range shapes {
+			shape.Draw()
+		}
 
 		// Swap Buffers
 		window.SwapBuffers()
