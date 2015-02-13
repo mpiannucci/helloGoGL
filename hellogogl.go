@@ -13,6 +13,8 @@ var (
 	shapes        []drawable
 	animateSwitch float32
 	move          float32
+	colorCounter  int
+	colorShift    int
 	scale         float32
 )
 
@@ -23,7 +25,7 @@ func Init() {
 
 	blueTriangle := CreateTriangle()
 	blueTriangle.SetScale(scale)
-	blueTriangle.SetColor(0, 0.2, 1.0)
+	blueTriangle.SetColor(0.2, 0.2, 1.0)
 
 	redRect := CreateSquare()
 	redRect.SetScale(scale)
@@ -39,7 +41,10 @@ func Init() {
 		redRect,
 		greenCircle}
 
+	// Initialize the animation switch and the color change switch
 	animateSwitch = 1.0
+	colorCounter = 0
+	colorShift = 0
 
 	// Set the position of all of the drawables
 	PositionDrawables()
@@ -60,6 +65,18 @@ func PositionDrawables() {
 		}
 		shape.SetTranslation(xPosition, 0.0, 0.0)
 	}
+}
+
+// Change colors of the shapes
+func SwitchColors() {
+
+	if colorCounter%30 == 0 {
+		shapes[(colorShift+0)%len(shapes)].SetColor(0.2, 0.2, 1.0)
+		shapes[(colorShift+1)%len(shapes)].SetColor(1.0, 0.2, 0.2)
+		shapes[(colorShift+2)%len(shapes)].SetColor(0.2, 1.0, 0.2)
+		colorShift++
+	}
+	colorCounter++
 }
 
 // Animate
@@ -122,6 +139,7 @@ func main() {
 
 		// Animate the triangles
 		//Animate()
+		SwitchColors()
 
 		// Draw the drawablesss
 		for _, shape := range shapes {
