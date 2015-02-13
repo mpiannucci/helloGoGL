@@ -69,7 +69,7 @@ func PositionDrawables() {
 
 // Change colors of the shapes
 func SwitchColors() {
-
+	// Only change the color every so often
 	if colorCounter%30 == 0 {
 		shapes[(colorShift+0)%len(shapes)].SetColor(0.2, 0.2, 1.0)
 		shapes[(colorShift+1)%len(shapes)].SetColor(1.0, 0.2, 0.2)
