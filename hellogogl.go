@@ -48,11 +48,18 @@ func Init() {
 // Position the shapes evenly in the X direction
 func PositionDrawables() {
 	// Equal distant between the shapes
-	// equiDistant := 20.0 / len(shapes)
+	equiDistant := float32(20.0 / (len(shapes) + 1.0))
 
-	// for index, shape := range shapes {
-	// 	baseLocation := -10.0 + (index * equiDistant)
-	// }
+	for index, shape := range shapes {
+		xPosition := -10.0 + (float32(index+1) * equiDistant)
+		switch {
+		case shape.Shape() != circle_shape:
+			// If its a square, rectangle or triangle, the drawing starts in the left corner
+			// So account for that and center it
+			xPosition = xPosition - (float32(scale) * 0.5)
+		}
+		shape.SetTranslation(xPosition, 0.0, 0.0)
+	}
 }
 
 // Animate
