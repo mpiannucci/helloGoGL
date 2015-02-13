@@ -3,6 +3,8 @@ helloGoGL
 
 Playing with OpenGL using Go
 
+![Screen Capture](Resources/screencap.gif)
+
 Installing Dependencies
 ------------------
 This program uses [Go-GL](https://github.com/go-gl/gl) to bind with OpenGL. This requires GLEW and GLFW3 to be installed. 

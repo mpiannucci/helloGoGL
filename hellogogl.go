@@ -128,7 +128,7 @@ func main() {
 	window.SetInputMode(glfw.StickyKeys, 1)
 
 	// Window background color
-	gl.ClearColor(1.0, 1.0, 1.0, 0.0)
+	gl.ClearColor(0.9, 0.9, 0.9, 0.0)
 
 	// Init objects
 	Init()

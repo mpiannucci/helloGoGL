@@ -96,7 +96,7 @@ func (c *circle) InitBuffers() {
 	c.vertexArray.Bind()
 
 	// Load shaders
-	c.shader = MakeShaderProgram("shape.vs", "shape.fs")
+	c.shader = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
 
 	// Get the uniform locations
 	c.mvpUniform = c.shader.GetUniformLocation("MVP")

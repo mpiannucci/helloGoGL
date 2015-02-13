@@ -110,7 +110,7 @@ func (p *polygon2d) InitBuffers() {
 	p.vertexArray.Bind()
 
 	// Load shaders
-	p.shader = MakeShaderProgram("shape.vs", "shape.fs")
+	p.shader = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
 
 	// Get the uniform locations
 	p.mvpUniform = p.shader.GetUniformLocation("MVP")
