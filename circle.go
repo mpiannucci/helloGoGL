@@ -8,9 +8,10 @@ import (
 
 // Two Dimensional Polygon Drawable
 type circle struct {
-	id       string
-	radius   float32
-	vertices []float32
+	id         string
+	radius     float32
+	vertices   []float32
+	shape_type ShapeType
 
 	// Buffers
 	vertexArray  gl.VertexArray
@@ -38,6 +39,11 @@ func (c *circle) ID() string {
 // Set the id of the circle
 func (c *circle) SetID(id string) {
 	c.id = id
+}
+
+// Set the shape of the circle
+func (c *circle) Shape() ShapeType {
+	return c.shape_type
 }
 
 // Set the radius of the circle
@@ -82,6 +88,9 @@ func (c *circle) UpdateMVPMatrix() {
 
 // Initialize the buffers
 func (c *circle) InitBuffers() {
+	// Identify as a circle
+	c.shape_type = circle_shape
+
 	// Create and Bind Vertex Arrays
 	c.vertexArray = gl.GenVertexArray()
 	c.vertexArray.Bind()

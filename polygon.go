@@ -5,22 +5,12 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 )
 
-// PloygonShape type to create polygon instances with
-type PolygonShape int
-
-// Types of polygons
-const (
-	triangle  PolygonShape = iota
-	square    PolygonShape = iota
-	rectangle PolygonShape = iota
-)
-
 // Two Dimensional Polygon Drawable
 type polygon2d struct {
-	id       string
-	vertices []float32
-	indices  []gl.GLuint
-	shape    PolygonShape
+	id         string
+	vertices   []float32
+	indices    []gl.GLuint
+	shape_type ShapeType
 
 	// Buffers
 	vertexArray   gl.VertexArray
@@ -72,16 +62,16 @@ func (p *polygon2d) SetColor(r, g, b float32) {
 }
 
 // Set the shape of the polygon
-func (p *polygon2d) SetShape(shape PolygonShape) {
-	p.shape = shape
-	switch p.shape {
-	case triangle:
+func (p *polygon2d) SetShape(shape_type ShapeType) {
+	p.shape_type = shape_type
+	switch p.shape_type {
+	case triangle_shape:
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
 			0.5, 1.0, 0.0}
 		p.indices = []gl.GLuint{0, 1, 2}
-	case square:
+	case square_shape:
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
@@ -90,7 +80,7 @@ func (p *polygon2d) SetShape(shape PolygonShape) {
 		p.indices = []gl.GLuint{
 			0, 1, 2,
 			0, 2, 3}
-	case rectangle:
+	case rectangle_shape:
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			2.0, 0.0, 0.0,
@@ -100,6 +90,11 @@ func (p *polygon2d) SetShape(shape PolygonShape) {
 			0, 1, 2,
 			0, 2, 3}
 	}
+}
+
+// Get the shape
+func (p *polygon2d) Shape() ShapeType {
+	return p.shape_type
 }
 
 // Update the Model View Projection matrix for rendering in the shader

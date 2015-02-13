@@ -13,34 +13,46 @@ var (
 	shapes        []drawable
 	animateSwitch float32
 	move          float32
+	scale         float32
 )
 
 // Initialize OpenGL
 func Init() {
+	// Set the scale
+	scale = 3.0
+
 	blueTriangle := CreateTriangle()
-	blueTriangle.SetTranslation(-7.0, 0.0, 0.0)
-	blueTriangle.SetRotation(0.0)
-	blueTriangle.SetScale(3.0)
+	blueTriangle.SetScale(scale)
 	blueTriangle.SetColor(0, 0.2, 1.0)
 
 	redRect := CreateSquare()
-	redRect.SetTranslation(5.0, 0.0, 0.0)
-	redRect.SetRotation(0.0)
-	redRect.SetScale(3.0)
+	redRect.SetScale(scale)
 	redRect.SetColor(1.0, 0.2, 0.2)
 
 	greenCircle := CreateCircle(0.5)
-	greenCircle.SetTranslation(0.0, 0.0, 0.0)
-	greenCircle.SetRotation(0.0)
-	greenCircle.SetScale(3.0)
+	greenCircle.SetScale(scale)
 	greenCircle.SetColor(0.2, 1.0, 0.2)
 
+	// Pack all of the drawables into one array
 	shapes = []drawable{
 		blueTriangle,
 		redRect,
 		greenCircle}
 
 	animateSwitch = 1.0
+
+	// Set the position of all of the drawables
+	PositionDrawables()
+}
+
+// Position the shapes evenly in the X direction
+func PositionDrawables() {
+	// Equal distant between the shapes
+	// equiDistant := 20.0 / len(shapes)
+
+	// for index, shape := range shapes {
+	// 	baseLocation := -10.0 + (index * equiDistant)
+	// }
 }
 
 // Animate

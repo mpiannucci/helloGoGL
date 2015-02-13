@@ -6,10 +6,22 @@ import (
 	"io/ioutil"
 )
 
+// PloygonShape type to create polygon instances with
+type ShapeType int
+
+// Types of polygons
+const (
+	triangle_shape  ShapeType = iota
+	square_shape    ShapeType = iota
+	rectangle_shape ShapeType = iota
+	circle_shape    ShapeType = iota
+)
+
 // Abstract interface for OpenGL compatible drawable objects
 type drawable interface {
 	ID() string
 	SetID(id string)
+	Shape() ShapeType
 	SetTranslation(x, y, z float32)
 	SetRotation(angle float32)
 	SetScale(mag float32)
@@ -22,17 +34,17 @@ type drawable interface {
 
 // Get a new triangle drawable
 func CreateTriangle() *polygon2d {
-	return CreatePolygon(triangle)
+	return CreatePolygon(triangle_shape)
 }
 
 // Get a new Square drawable
 func CreateSquare() *polygon2d {
-	return CreatePolygon(square)
+	return CreatePolygon(square_shape)
 }
 
 // Get a new rectangle drawable
 func CreateRectangle() *polygon2d {
-	return CreatePolygon(rectangle)
+	return CreatePolygon(rectangle_shape)
 }
 
 // Get a new circle drawable
@@ -44,7 +56,7 @@ func CreateCircle(radius float32) *circle {
 }
 
 // Get a new shape object of your choice
-func CreatePolygon(shape PolygonShape) *polygon2d {
+func CreatePolygon(shape ShapeType) *polygon2d {
 	p := new(polygon2d)
 	p.SetShape(shape)
 	p.InitBuffers()
