@@ -7,10 +7,11 @@ import (
 
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
+	"github.com/mpiannucci/helloGoGL/drawable"
 )
 
 var (
-	shapes        []drawable
+	shapes        []drawable.Drawable
 	animateSwitch float32
 	move          float32
 	colorCounter  int
@@ -23,20 +24,20 @@ func Init() {
 	// Set the scale
 	scale = 3.0
 
-	blueTriangle := CreateTriangle()
+	blueTriangle := drawable.CreateTriangle()
 	blueTriangle.SetScale(scale)
 	blueTriangle.SetColor(0.2, 0.2, 1.0)
 
-	redRect := CreateSquare()
+	redRect := drawable.CreateSquare()
 	redRect.SetScale(scale)
 	redRect.SetColor(1.0, 0.2, 0.2)
 
-	greenCircle := CreateCircle(0.5)
+	greenCircle := drawable.CreateCircle(0.5)
 	greenCircle.SetScale(scale)
 	greenCircle.SetColor(0.2, 1.0, 0.2)
 
 	// Pack all of the drawables into one array
-	shapes = []drawable{
+	shapes = []drawable.Drawable{
 		blueTriangle,
 		redRect,
 		greenCircle}
@@ -58,7 +59,7 @@ func PositionDrawables() {
 	for index, shape := range shapes {
 		xPosition := -10.0 + (float32(index+1) * equiDistant)
 		switch {
-		case shape.Shape() != circle_shape:
+		case shape.Shape() != drawable.CircleShape:
 			// If its a square, rectangle or triangle, the drawing starts in the left corner
 			// So account for that and center it
 			xPosition = xPosition - (float32(scale) * 0.5)

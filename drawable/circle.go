@@ -1,4 +1,4 @@
-package main
+package drawable
 
 import (
 	"github.com/go-gl/gl"
@@ -7,7 +7,7 @@ import (
 )
 
 // Two Dimensional Polygon Drawable
-type circle struct {
+type Circle struct {
 	id         string
 	radius     float32
 	vertices   []float32
@@ -32,22 +32,22 @@ type circle struct {
 }
 
 // Get the id of the circle
-func (c *circle) ID() string {
+func (c *Circle) ID() string {
 	return c.id
 }
 
 // Set the id of the circle
-func (c *circle) SetID(id string) {
+func (c *Circle) SetID(id string) {
 	c.id = id
 }
 
 // Set the shape of the circle
-func (c *circle) Shape() ShapeType {
+func (c *Circle) Shape() ShapeType {
 	return c.shape_type
 }
 
 // Set the radius of the circle
-func (c *circle) SetRadius(radius float32) {
+func (c *Circle) SetRadius(radius float32) {
 	c.radius = radius
 
 	// Create the new vertices
@@ -61,35 +61,35 @@ func (c *circle) SetRadius(radius float32) {
 }
 
 // Set the translation of the circle
-func (c *circle) SetTranslation(x, y, z float32) {
+func (c *Circle) SetTranslation(x, y, z float32) {
 	c.xyOffset = mgl32.Vec2{x, y}
 }
 
 // Set the rotation of the circle
-func (c *circle) SetRotation(angle float32) {
+func (c *Circle) SetRotation(angle float32) {
 	c.rotAngle = angle
 }
 
 // Set the scale of the circle
-func (c *circle) SetScale(mag float32) {
+func (c *Circle) SetScale(mag float32) {
 	c.scaleMag = mag
 }
 
 // Set the color to draw the circle
-func (c *circle) SetColor(r, g, b float32) {
+func (c *Circle) SetColor(r, g, b float32) {
 	c.color = mgl32.Vec3{r, g, b}
 }
 
 // Update the Model View Projection matrix for rendering in the shader
-func (c *circle) UpdateMVPMatrix() {
+func (c *Circle) UpdateMVPMatrix() {
 	c.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(c.rotAngle)).Mul4(mgl32.Translate3D(c.xyOffset.X(), c.xyOffset.Y(), 0)).Mul4(mgl32.Scale3D(c.scaleMag, c.scaleMag, 0))
 	c.mvp = c.projection.Mul4(c.model)
 }
 
 // Initialize the buffers
-func (c *circle) InitBuffers() {
+func (c *Circle) InitBuffers() {
 	// Identify as a circle
-	c.shape_type = circle_shape
+	c.shape_type = CircleShape
 
 	// Create and Bind Vertex Arrays
 	c.vertexArray = gl.GenVertexArray()
@@ -113,7 +113,7 @@ func (c *circle) InitBuffers() {
 }
 
 // Bind the Buffers
-func (c *circle) BindBuffers() {
+func (c *Circle) BindBuffers() {
 	// Create and bind vertex buffers
 	c.vertexBuffer = gl.GenBuffer()
 	c.vertexBuffer.Bind(gl.ARRAY_BUFFER)
@@ -121,7 +121,7 @@ func (c *circle) BindBuffers() {
 }
 
 // Render the circle
-func (c *circle) Draw() {
+func (c *Circle) Draw() {
 	c.UpdateMVPMatrix()
 	c.BindBuffers()
 

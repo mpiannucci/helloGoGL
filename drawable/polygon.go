@@ -1,4 +1,4 @@
-package main
+package drawable
 
 import (
 	"github.com/go-gl/gl"
@@ -6,7 +6,7 @@ import (
 )
 
 // Two Dimensional Polygon Drawable
-type polygon2d struct {
+type Polygon2d struct {
 	id         string
 	vertices   []float32
 	indices    []gl.GLuint
@@ -32,46 +32,46 @@ type polygon2d struct {
 }
 
 // Get the id of the polygon
-func (p *polygon2d) ID() string {
+func (p *Polygon2d) ID() string {
 	return p.id
 }
 
 // Set the id of the polygon
-func (p *polygon2d) SetID(id string) {
+func (p *Polygon2d) SetID(id string) {
 	p.id = id
 }
 
 // Set the translation of the polygon
-func (p *polygon2d) SetTranslation(x, y, z float32) {
+func (p *Polygon2d) SetTranslation(x, y, z float32) {
 	p.xyOffset = mgl32.Vec2{x, y}
 }
 
 // Set the rotation of the polygon
-func (p *polygon2d) SetRotation(angle float32) {
+func (p *Polygon2d) SetRotation(angle float32) {
 	p.rotAngle = angle
 }
 
 // Set the scale of the polygon
-func (p *polygon2d) SetScale(mag float32) {
+func (p *Polygon2d) SetScale(mag float32) {
 	p.scaleMag = mag
 }
 
 // Set the color to draw the polygon
-func (p *polygon2d) SetColor(r, g, b float32) {
+func (p *Polygon2d) SetColor(r, g, b float32) {
 	p.color = mgl32.Vec3{r, g, b}
 }
 
 // Set the shape of the polygon
-func (p *polygon2d) SetShape(shape_type ShapeType) {
+func (p *Polygon2d) SetShape(shape_type ShapeType) {
 	p.shape_type = shape_type
 	switch p.shape_type {
-	case triangle_shape:
+	case TriangleShape:
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
 			0.5, 1.0, 0.0}
 		p.indices = []gl.GLuint{0, 1, 2}
-	case square_shape:
+	case SquareShape:
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
@@ -80,7 +80,7 @@ func (p *polygon2d) SetShape(shape_type ShapeType) {
 		p.indices = []gl.GLuint{
 			0, 1, 2,
 			0, 2, 3}
-	case rectangle_shape:
+	case RectangleShape:
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			2.0, 0.0, 0.0,
@@ -93,18 +93,18 @@ func (p *polygon2d) SetShape(shape_type ShapeType) {
 }
 
 // Get the shape
-func (p *polygon2d) Shape() ShapeType {
+func (p *Polygon2d) Shape() ShapeType {
 	return p.shape_type
 }
 
 // Update the Model View Projection matrix for rendering in the shader
-func (p *polygon2d) UpdateMVPMatrix() {
+func (p *Polygon2d) UpdateMVPMatrix() {
 	p.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(p.rotAngle)).Mul4(mgl32.Translate3D(p.xyOffset.X(), p.xyOffset.Y(), 0)).Mul4(mgl32.Scale3D(p.scaleMag, p.scaleMag, 0))
 	p.mvp = p.projection.Mul4(p.model)
 }
 
 // Initialize the buffers
-func (p *polygon2d) InitBuffers() {
+func (p *Polygon2d) InitBuffers() {
 	// Create and Bind Vertex Arrays
 	p.vertexArray = gl.GenVertexArray()
 	p.vertexArray.Bind()
@@ -127,7 +127,7 @@ func (p *polygon2d) InitBuffers() {
 }
 
 // Bind the Buffers
-func (p *polygon2d) BindBuffers() {
+func (p *Polygon2d) BindBuffers() {
 	// Create and bind vertex buffers
 	p.vertexBuffer = gl.GenBuffer()
 	p.vertexBuffer.Bind(gl.ARRAY_BUFFER)
@@ -140,7 +140,7 @@ func (p *polygon2d) BindBuffers() {
 }
 
 // Render the polygon
-func (p *polygon2d) Draw() {
+func (p *Polygon2d) Draw() {
 	p.UpdateMVPMatrix()
 	p.BindBuffers()
 
