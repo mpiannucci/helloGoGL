@@ -8,7 +8,10 @@ import (
 
 // Two Dimensional Polygon Drawable
 type Circle struct {
-	id         string
+	// Shared drawable attributes
+	*Attributes
+
+	// Shape specific properties
 	radius     float32
 	vertices   []float32
 	shape_type ShapeType
@@ -20,25 +23,7 @@ type Circle struct {
 	// Shaders
 	shader       gl.Program
 	mvpUniform   gl.UniformLocation
-	xyOffset     mgl32.Vec2
-	rotAngle     float32
-	scaleMag     float32
 	colorUniform gl.UniformLocation
-	color        mgl32.Vec3
-	projection   mgl32.Mat4
-	view         mgl32.Mat4
-	model        mgl32.Mat4
-	mvp          mgl32.Mat4
-}
-
-// Get the id of the circle
-func (c *Circle) ID() string {
-	return c.id
-}
-
-// Set the id of the circle
-func (c *Circle) SetID(id string) {
-	c.id = id
 }
 
 // Set the shape of the circle
@@ -58,32 +43,6 @@ func (c *Circle) SetRadius(radius float32) {
 		vertY := c.vertices[1] + radius*float32(math.Sin(float64(segment)*2.0*math.Pi/float64(num_segments)))
 		c.vertices = append(c.vertices, vertX, vertY, 0.0)
 	}
-}
-
-// Set the translation of the circle
-func (c *Circle) SetTranslation(x, y, z float32) {
-	c.xyOffset = mgl32.Vec2{x, y}
-}
-
-// Set the rotation of the circle
-func (c *Circle) SetRotation(angle float32) {
-	c.rotAngle = angle
-}
-
-// Set the scale of the circle
-func (c *Circle) SetScale(mag float32) {
-	c.scaleMag = mag
-}
-
-// Set the color to draw the circle
-func (c *Circle) SetColor(r, g, b float32) {
-	c.color = mgl32.Vec3{r, g, b}
-}
-
-// Update the Model View Projection matrix for rendering in the shader
-func (c *Circle) UpdateMVPMatrix() {
-	c.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(c.rotAngle)).Mul4(mgl32.Translate3D(c.xyOffset.X(), c.xyOffset.Y(), 0)).Mul4(mgl32.Scale3D(c.scaleMag, c.scaleMag, 0))
-	c.mvp = c.projection.Mul4(c.model)
 }
 
 // Initialize the buffers

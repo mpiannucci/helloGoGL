@@ -3,6 +3,7 @@ package drawable
 import (
 	"github.com/go-gl/gl"
 	"github.com/go-gl/glh"
+	"github.com/go-gl/mathgl/mgl32"
 	"io/ioutil"
 )
 
@@ -22,11 +23,14 @@ type Drawable interface {
 	ID() string
 	SetID(id string)
 	Shape() ShapeType
+	Translation() mgl32.Vec2
 	SetTranslation(x, y, z float32)
+	Rotation() float32
 	SetRotation(angle float32)
+	Scale() float32
 	SetScale(mag float32)
+	Color() mgl32.Vec3
 	SetColor(r, g, b float32)
-	UpdateMVPMatrix()
 	InitBuffers()
 	BindBuffers()
 	Draw()
@@ -49,7 +53,13 @@ func CreateRectangle() *Polygon2d {
 
 // Get a new circle drawable
 func CreateCircle(radius float32) *Circle {
+	// First create the new instance of attributes with default parameters
+	a := getDefaultAttributes()
+
+	// Now create a new instance of the circle drawable with the newly created
+	// attributes
 	c := new(Circle)
+	c.Attributes = a
 	c.SetRadius(radius)
 	c.InitBuffers()
 	return c
@@ -57,10 +67,28 @@ func CreateCircle(radius float32) *Circle {
 
 // Get a new shape object of your choice
 func CreatePolygon(shape ShapeType) *Polygon2d {
+	// First create the new instance of attributes with default parameters
+	a := getDefaultAttributes()
+
+	// Now create a new instance of the polygon with the newly created
+	// attributes.
 	p := new(Polygon2d)
+	p.Attributes = a
 	p.SetShape(shape)
 	p.InitBuffers()
 	return p
+}
+
+// Get a new instace of the defaulted drawable attributes
+func getDefaultAttributes() *Attributes {
+	a := new(Attributes)
+	a.SetID("randomID")
+	a.SetColor(0, 0, 1)
+	a.SetRotation(0)
+	a.SetTranslation(0, 0, 0)
+	a.SetScale(1)
+	a.UpdateMVPMatrix()
+	return a
 }
 
 // Utility function to grab shaders

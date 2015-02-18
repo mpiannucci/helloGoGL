@@ -7,7 +7,10 @@ import (
 
 // Two Dimensional Polygon Drawable
 type Polygon2d struct {
-	id         string
+	// Shared drawable attributes
+	*Attributes
+
+	// Shape specific properties
 	vertices   []float32
 	indices    []gl.GLuint
 	shape_type ShapeType
@@ -20,45 +23,7 @@ type Polygon2d struct {
 	// Shaders
 	shader       gl.Program
 	mvpUniform   gl.UniformLocation
-	xyOffset     mgl32.Vec2
-	rotAngle     float32
-	scaleMag     float32
 	colorUniform gl.UniformLocation
-	color        mgl32.Vec3
-	projection   mgl32.Mat4
-	view         mgl32.Mat4
-	model        mgl32.Mat4
-	mvp          mgl32.Mat4
-}
-
-// Get the id of the polygon
-func (p *Polygon2d) ID() string {
-	return p.id
-}
-
-// Set the id of the polygon
-func (p *Polygon2d) SetID(id string) {
-	p.id = id
-}
-
-// Set the translation of the polygon
-func (p *Polygon2d) SetTranslation(x, y, z float32) {
-	p.xyOffset = mgl32.Vec2{x, y}
-}
-
-// Set the rotation of the polygon
-func (p *Polygon2d) SetRotation(angle float32) {
-	p.rotAngle = angle
-}
-
-// Set the scale of the polygon
-func (p *Polygon2d) SetScale(mag float32) {
-	p.scaleMag = mag
-}
-
-// Set the color to draw the polygon
-func (p *Polygon2d) SetColor(r, g, b float32) {
-	p.color = mgl32.Vec3{r, g, b}
 }
 
 // Set the shape of the polygon
@@ -95,12 +60,6 @@ func (p *Polygon2d) SetShape(shape_type ShapeType) {
 // Get the shape
 func (p *Polygon2d) Shape() ShapeType {
 	return p.shape_type
-}
-
-// Update the Model View Projection matrix for rendering in the shader
-func (p *Polygon2d) UpdateMVPMatrix() {
-	p.model = mgl32.Ident4().Mul4(mgl32.HomogRotate3DZ(p.rotAngle)).Mul4(mgl32.Translate3D(p.xyOffset.X(), p.xyOffset.Y(), 0)).Mul4(mgl32.Scale3D(p.scaleMag, p.scaleMag, 0))
-	p.mvp = p.projection.Mul4(p.model)
 }
 
 // Initialize the buffers

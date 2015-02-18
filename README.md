@@ -37,3 +37,11 @@ Getting the Project
 ```bash
 go get github.com/mpiannucci/helloGoGL
 ```
+
+Running the App
+-------------------
+
+```bash 
+cd $GOPATH/src/github.com/mpiannucci/helloGoGL/
+go run main.go
+```
