@@ -70,7 +70,7 @@ func (p *Polygon2d) InitBuffers() {
 
 	// Load shaders
 	var err error
-	p.shader, err = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
+	p.shader, err = MakeShaderProgram("resources/shape.vs", "resources/shape.fs")
 	if err != nil {
 		panic(err)
 	}

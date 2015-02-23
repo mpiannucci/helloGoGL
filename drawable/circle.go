@@ -56,7 +56,7 @@ func (c *Circle) InitBuffers() {
 
 	// Get the shader
 	var err error
-	c.shader, err = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
+	c.shader, err = MakeShaderProgram("resources/shape.vs", "resources/shape.fs")
 	if err != nil {
 		panic(err)
 	}

@@ -104,7 +104,7 @@ func MakeShaderProgram(vertFname, fragFname string) (uint32, error) {
 	if err != nil {
 		panic(err)
 	}
-	return newProgram(string(vertSource), string(fragSource))
+	return newProgram(string(vertSource)+"\x00", string(fragSource)+"\x00")
 }
 
 func newProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
