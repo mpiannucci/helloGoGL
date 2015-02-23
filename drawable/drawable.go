@@ -1,9 +1,12 @@
 package drawable
 
 import (
+	"errors"
+	"fmt"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"io/ioutil"
+	"strings"
 )
 
 // PloygonShape type to create polygon instances with
@@ -91,7 +94,7 @@ func getDefaultAttributes() *Attributes {
 }
 
 // Utility function to grab shaders
-func MakeShaderProgram(vertFname, fragFname string) gl.Program {
+func MakeShaderProgram(vertFname, fragFname string) (uint32, error) {
 	vertSource, err := ioutil.ReadFile(vertFname)
 	if err != nil {
 		panic(err)
@@ -101,7 +104,7 @@ func MakeShaderProgram(vertFname, fragFname string) gl.Program {
 	if err != nil {
 		panic(err)
 	}
-	return newProgram(glh.Shader{gl.VERTEX_SHADER, string(vertSource)}, glh.Shader{gl.FRAGMENT_SHADER, string(fragSource)})
+	return newProgram(string(vertSource), string(fragSource))
 }
 
 func newProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error) {

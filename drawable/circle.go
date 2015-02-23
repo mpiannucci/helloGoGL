@@ -17,13 +17,13 @@ type Circle struct {
 	shape_type ShapeType
 
 	// Buffers
-	vertexArray  gl.VertexArray
-	vertexBuffer gl.Buffer
+	vertexArray  uint32
+	vertexBuffer uint32
 
 	// Shaders
-	shader       gl.Program
-	mvpUniform   gl.UniformLocation
-	colorUniform gl.UniformLocation
+	shader       uint32
+	mvpUniform   int32
+	colorUniform int32
 }
 
 // Set the shape of the circle
@@ -51,15 +51,19 @@ func (c *Circle) InitBuffers() {
 	c.shape_type = CircleShape
 
 	// Create and Bind Vertex Arrays
-	c.vertexArray = gl.GenVertexArray()
-	c.vertexArray.Bind()
+	gl.GenVertexArrays(1, &c.vertexArray)
+	gl.BindVertexArray(c.vertexArray)
 
-	// Load shaders
-	c.shader = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
+	// Get the shader
+	var err error
+	c.shader, err = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
+	if err != nil {
+		panic(err)
+	}
 
 	// Get the uniform locations
-	c.mvpUniform = c.shader.GetUniformLocation("MVP")
-	c.colorUniform = c.shader.GetUniformLocation("ColorVector")
+	c.mvpUniform = gl.GetUniformLocation(c.shader, gl.Str("MVP\x00"))
+	c.colorUniform = gl.GetUniformLocation(c.shader, gl.Str("ColorVector\x00"))
 
 	// Initialize projection matrices
 	c.projection = mgl32.Ortho2D(-10, 10, -10, 10)
@@ -74,9 +78,9 @@ func (c *Circle) InitBuffers() {
 // Bind the Buffers
 func (c *Circle) BindBuffers() {
 	// Create and bind vertex buffers
-	c.vertexBuffer = gl.GenBuffer()
-	c.vertexBuffer.Bind(gl.ARRAY_BUFFER)
-	gl.BufferData(gl.ARRAY_BUFFER, len(c.vertices)*4, c.vertices, gl.STATIC_DRAW)
+	gl.GenBuffers(1, &c.vertexBuffer)
+	gl.BindBuffer(gl.ARRAY_BUFFER, c.vertexBuffer)
+	gl.BufferData(gl.ARRAY_BUFFER, int(len(c.vertices)*4), gl.Ptr(c.vertices), gl.STATIC_DRAW)
 }
 
 // Render the circle
@@ -84,27 +88,23 @@ func (c *Circle) Draw() {
 	c.UpdateMVPMatrix()
 	c.BindBuffers()
 
-	// Load Shaders
-	c.shader.Use()
-	defer c.shader.Unuse()
+	// Load Shader
+	gl.UseProgram(c.shader)
 
 	// Pass uniforms so the shader
-	c.mvpUniform.UniformMatrix4fv(false, c.mvp)
-	c.colorUniform.Uniform3f(c.color.X(), c.color.Y(), c.color.Z())
+	gl.UniformMatrix4fv(c.mvpUniform, 1, false, &c.mvp[0])
+	gl.Uniform3f(c.colorUniform, c.color.X(), c.color.Y(), c.color.Z())
 
 	// Load Arrays
-	attribLoc := gl.AttribLocation(0)
-	attribLoc.EnableArray()
-	defer attribLoc.DisableArray()
+	gl.EnableVertexAttribArray(0)
 
 	// Bind the buffer again
-	c.vertexBuffer.Bind(gl.ARRAY_BUFFER)
-	defer c.vertexBuffer.Unbind(gl.ARRAY_BUFFER)
-	attribLoc.AttribPointer(3, gl.FLOAT, false, 0, nil)
+	gl.BindBuffer(gl.ARRAY_BUFFER, c.vertexBuffer)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
 
 	// Draw the arrays
-	gl.DrawArrays(gl.TRIANGLE_FAN, 0, len(c.vertices))
+	gl.DrawArrays(gl.TRIANGLE_FAN, 0, int32(len(c.vertices)))
 
 	// Clean up
-	attribLoc.DisableArray()
+	gl.DisableVertexAttribArray(0)
 }

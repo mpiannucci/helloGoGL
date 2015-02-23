@@ -12,18 +12,18 @@ type Polygon2d struct {
 
 	// Shape specific properties
 	vertices   []float32
-	indices    []gl.GLuint
+	indices    []uint32
 	shape_type ShapeType
 
 	// Buffers
-	vertexArray   gl.VertexArray
-	vertexBuffer  gl.Buffer
-	elementBuffer gl.Buffer
+	vertexArray   uint32
+	vertexBuffer  uint32
+	elementBuffer uint32
 
 	// Shaders
-	shader       gl.Program
-	mvpUniform   gl.UniformLocation
-	colorUniform gl.UniformLocation
+	shader       uint32
+	mvpUniform   int32
+	colorUniform int32
 }
 
 // Set the shape of the polygon
@@ -35,14 +35,14 @@ func (p *Polygon2d) SetShape(shape_type ShapeType) {
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
 			0.5, 1.0, 0.0}
-		p.indices = []gl.GLuint{0, 1, 2}
+		p.indices = []uint32{0, 1, 2}
 	case SquareShape:
 		p.vertices = []float32{
 			0.0, 0.0, 0.0,
 			1.0, 0.0, 0.0,
 			1.0, 1.0, 0.0,
 			0.0, 1.0, 0.0}
-		p.indices = []gl.GLuint{
+		p.indices = []uint32{
 			0, 1, 2,
 			0, 2, 3}
 	case RectangleShape:
@@ -51,7 +51,7 @@ func (p *Polygon2d) SetShape(shape_type ShapeType) {
 			2.0, 0.0, 0.0,
 			2.0, 1.0, 0.0,
 			0.0, 1.0, 0.0}
-		p.indices = []gl.GLuint{
+		p.indices = []uint32{
 			0, 1, 2,
 			0, 2, 3}
 	}
@@ -65,15 +65,19 @@ func (p *Polygon2d) Shape() ShapeType {
 // Initialize the buffers
 func (p *Polygon2d) InitBuffers() {
 	// Create and Bind Vertex Arrays
-	p.vertexArray = gl.GenVertexArray()
-	p.vertexArray.Bind()
+	gl.GenVertexArrays(1, &p.vertexArray)
+	gl.BindVertexArray(p.vertexArray)
 
 	// Load shaders
-	p.shader = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
+	var err error
+	p.shader, err = MakeShaderProgram("Resources/shape.vs", "Resources/shape.fs")
+	if err != nil {
+		panic(err)
+	}
 
 	// Get the uniform locations
-	p.mvpUniform = p.shader.GetUniformLocation("MVP")
-	p.colorUniform = p.shader.GetUniformLocation("ColorVector")
+	p.mvpUniform = gl.GetUniformLocation(p.shader, gl.Str("MVP\x00"))
+	p.colorUniform = gl.GetUniformLocation(p.shader, gl.Str("ColorVector\x00"))
 
 	// Initialize projection matrices
 	p.projection = mgl32.Ortho2D(-10, 10, -10, 10)
@@ -88,14 +92,14 @@ func (p *Polygon2d) InitBuffers() {
 // Bind the Buffers
 func (p *Polygon2d) BindBuffers() {
 	// Create and bind vertex buffers
-	p.vertexBuffer = gl.GenBuffer()
-	p.vertexBuffer.Bind(gl.ARRAY_BUFFER)
-	gl.BufferData(gl.ARRAY_BUFFER, len(p.vertices)*4, p.vertices, gl.STATIC_DRAW)
+	gl.GenBuffers(1, &p.vertexBuffer)
+	gl.BindBuffer(gl.ARRAY_BUFFER, p.vertexBuffer)
+	gl.BufferData(gl.ARRAY_BUFFER, int(len(p.vertices)*4), gl.Ptr(p.vertices), gl.STATIC_DRAW)
 
 	// Create and bind the element buffers
-	p.elementBuffer = gl.GenBuffer()
-	p.elementBuffer.Bind(gl.ELEMENT_ARRAY_BUFFER)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(p.indices)*4, p.indices, gl.STATIC_DRAW)
+	gl.GenBuffers(1, &p.elementBuffer)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.elementBuffer)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, int(len(p.indices)*4), gl.Ptr(p.indices), gl.STATIC_DRAW)
 }
 
 // Render the polygon
@@ -104,30 +108,25 @@ func (p *Polygon2d) Draw() {
 	p.BindBuffers()
 
 	// Load Shaders
-	p.shader.Use()
-	defer p.shader.Unuse()
+	gl.UseProgram(p.shader)
 
-	// Pass uniforms so the shader
-	p.mvpUniform.UniformMatrix4fv(false, p.mvp)
-	p.colorUniform.Uniform3f(p.color.X(), p.color.Y(), p.color.Z())
+	// Pass uniforms to the Shader
+	gl.UniformMatrix4fv(p.mvpUniform, 1, false, &p.mvp[0])
+	gl.Uniform3f(p.colorUniform, p.color.X(), p.color.Y(), p.color.Z())
 
 	// Load Arrays
-	attribLoc := gl.AttribLocation(0)
-	attribLoc.EnableArray()
-	defer attribLoc.DisableArray()
+	gl.EnableVertexAttribArray(0)
 
 	// Bind the buffer again
-	p.vertexBuffer.Bind(gl.ARRAY_BUFFER)
-	defer p.vertexBuffer.Unbind(gl.ARRAY_BUFFER)
-	attribLoc.AttribPointer(3, gl.FLOAT, false, 0, nil)
+	gl.BindBuffer(gl.ARRAY_BUFFER, p.vertexBuffer)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
 
 	// Bind the element buffer
-	p.elementBuffer.Bind(gl.ELEMENT_ARRAY_BUFFER)
-	defer p.elementBuffer.Unbind(gl.ELEMENT_ARRAY_BUFFER)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, p.elementBuffer)
 
 	// Draw the arrays
-	gl.DrawElements(gl.TRIANGLES, len(p.indices), gl.UNSIGNED_INT, nil)
+	gl.DrawElements(gl.TRIANGLES, int32(len(p.indices)), gl.UNSIGNED_INT, nil)
 
 	// Clean up
-	attribLoc.DisableArray()
+	gl.DisableVertexAttribArray(0)
 }

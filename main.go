@@ -104,7 +104,8 @@ func main() {
 	runtime.LockOSThread()
 
 	// Initialize the OpenGL Context
-	if !glfw.Init() {
+	glfwErr := glfw.Init()
+	if glfwErr != nil {
 		fmt.Fprintf(os.Stderr, "Can't open GLFW")
 		return
 	}
@@ -113,8 +114,8 @@ func main() {
 	glfw.WindowHint(glfw.Samples, 4)
 	glfw.WindowHint(glfw.ContextVersionMajor, 3)
 	glfw.WindowHint(glfw.ContextVersionMinor, 3)
-	glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
-	glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True) // needed for macs
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True) // needed for macs
 
 	window, err := glfw.CreateWindow(400, 400, "Hello Go GL", nil, nil)
 	if err != nil {
@@ -126,7 +127,7 @@ func main() {
 
 	gl.Init()
 	gl.GetError() // Ignore error
-	window.SetInputMode(glfw.StickyKeys, 1)
+	window.SetInputMode(glfw.StickyKeysMode, 1)
 
 	// Window background color
 	gl.ClearColor(0.9, 0.9, 0.9, 0.0)
