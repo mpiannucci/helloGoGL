@@ -3,7 +3,7 @@ helloGoGL
 
 Playing with OpenGL using Go
 
-![Screen Capture](Resources/screencap.gif)
+![Screen Capture](resources/screencap.gif)
 
 Installing Dependencies
 ------------------
