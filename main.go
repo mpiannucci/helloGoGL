@@ -5,7 +5,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/go-gl/gl"
+	"github.com/go-gl/gl/v4.1-core/gl"
 	glfw "github.com/go-gl/glfw3"
 	"github.com/mpiannucci/helloGoGL/drawable"
 )
