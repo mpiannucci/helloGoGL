@@ -139,9 +139,21 @@ func main() {
 	for ok := true; ok; ok = (window.GetKey(glfw.KeyEscape) != glfw.Press && !window.ShouldClose()) {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		// Animate the triangles
-		//Animate()
-		SwitchColors()
+		// Get th key states
+		rightPress := window.GetKey(glfw.KeyRight)
+		leftPress := window.GetKey(glfw.KeyLeft)
+		upPress := window.GetKey(glfw.KeyUp)
+		downPress := window.GetKey(glfw.KeyDown)
+
+		// If the horizontal keys were press change colors
+		if rightPress == glfw.Press || leftPress == glfw.Press {
+			SwitchColors()
+		}
+
+		// If the vertical keys were pressed then animate the shapes
+		if upPress == glfw.Press || downPress == glfw.Press {
+			Animate()
+		}
 
 		// Draw the drawablesss
 		for _, shape := range shapes {
