@@ -21,3 +21,7 @@ Running the App
 cd $GOPATH/src/github.com/mpiannucci/helloGoGL/
 go run main.go
 ```
+
+#### Key Commands
+
+You can move the shapes up and down using the `UP` and `DOWN` keys, and change the colors of the shapes using the `LEFT` and `RIGHT` keys
