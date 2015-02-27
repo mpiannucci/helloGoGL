@@ -11,12 +11,13 @@ import (
 )
 
 var (
-	shapes        []drawable.Drawable
-	animateSwitch float32
-	move          float32
-	colorCounter  int
-	colorShift    int
-	scale         float32
+	shapes       []drawable.Drawable
+	move         float32
+	colorCounter int
+	colorShift   int
+	scale        float32
+	window       *glfw.Window
+	windowErr    error
 )
 
 // Initialize OpenGL
@@ -43,7 +44,6 @@ func Init() {
 		greenCircle}
 
 	// Initialize the animation switch and the color change switch
-	animateSwitch = 1.0
 	colorCounter = 0
 	colorShift = 0
 
@@ -82,21 +82,38 @@ func SwitchColors() {
 
 // Animate
 func Animate() {
-	// Increment the move counter
-	move += 0.2 * animateSwitch
 
-	// Get the new Y locations
-	blueY := float32(move)
-	redY := float32(-1.0 * move)
+	// Get the key states
+	rightPress := window.GetKey(glfw.KeyRight)
+	leftPress := window.GetKey(glfw.KeyLeft)
+	upPress := window.GetKey(glfw.KeyUp)
+	downPress := window.GetKey(glfw.KeyDown)
 
-	if move > 9.5 || move < -9.5 {
-		// Make sure nothing leaves the window so switch directions
-		animateSwitch *= -1.0
+	// If the horizontal keys were press change colors
+	if rightPress == glfw.Press || leftPress == glfw.Press {
+		SwitchColors()
 	}
 
-	// Set the translation for the shapes
-	shapes[0].SetTranslation(-5.0, blueY, 0.0)
-	shapes[1].SetTranslation(5.0, redY, 0.0)
+	// If the vertical keys were pressed then animate the shapes in the right direction,
+	// but make sure the shapes stay in the main window
+	if upPress == glfw.Press {
+		if move < 7.0 {
+			move += 0.2 * 1.0
+		}
+	} else if downPress == glfw.Press {
+		if move > -10.0 {
+			move += 0.2 * -1.0
+		}
+	}
+
+	// Get the new Y locations
+	yLocation := float32(move)
+
+	for _, shape := range shapes {
+		// Set the new translated location of each of the shapes
+		translate := shape.Translation()
+		shape.SetTranslation(translate.X(), yLocation, translate.Z())
+	}
 }
 
 // Main Entry Point
@@ -117,9 +134,9 @@ func main() {
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True) // needed for macs
 
-	window, err := glfw.CreateWindow(400, 400, "Hello Go GL", nil, nil)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+	window, windowErr = glfw.CreateWindow(400, 400, "Hello Go GL", nil, nil)
+	if windowErr != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", windowErr)
 		return
 	}
 
@@ -139,21 +156,7 @@ func main() {
 	for ok := true; ok; ok = (window.GetKey(glfw.KeyEscape) != glfw.Press && !window.ShouldClose()) {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		// Get th key states
-		rightPress := window.GetKey(glfw.KeyRight)
-		leftPress := window.GetKey(glfw.KeyLeft)
-		upPress := window.GetKey(glfw.KeyUp)
-		downPress := window.GetKey(glfw.KeyDown)
-
-		// If the horizontal keys were press change colors
-		if rightPress == glfw.Press || leftPress == glfw.Press {
-			SwitchColors()
-		}
-
-		// If the vertical keys were pressed then animate the shapes
-		if upPress == glfw.Press || downPress == glfw.Press {
-			Animate()
-		}
+		Animate()
 
 		// Draw the drawablesss
 		for _, shape := range shapes {

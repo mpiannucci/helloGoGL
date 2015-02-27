@@ -4,7 +4,7 @@ import "github.com/go-gl/mathgl/mgl32"
 
 type Attributes struct {
 	id            string
-	xyTranslation mgl32.Vec2
+	xyTranslation mgl32.Vec3
 	rotationAngle float32
 	scale         float32
 	color         mgl32.Vec3
@@ -26,13 +26,13 @@ func (a *Attributes) SetID(id string) {
 }
 
 // Get the translation of the drawable
-func (a *Attributes) Translation() mgl32.Vec2 {
+func (a *Attributes) Translation() mgl32.Vec3 {
 	return a.xyTranslation
 }
 
 // Set the translation of the polygon
 func (a *Attributes) SetTranslation(x, y, z float32) {
-	a.xyTranslation = mgl32.Vec2{x, y}
+	a.xyTranslation = mgl32.Vec3{x, y, z}
 }
 
 // Get the rotation of the drawable

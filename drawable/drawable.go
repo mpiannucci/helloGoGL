@@ -25,7 +25,7 @@ type Drawable interface {
 	ID() string
 	SetID(id string)
 	Shape() ShapeType
-	Translation() mgl32.Vec2
+	Translation() mgl32.Vec3
 	SetTranslation(x, y, z float32)
 	Rotation() float32
 	SetRotation(angle float32)
